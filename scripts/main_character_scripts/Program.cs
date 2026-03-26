@@ -2,6 +2,9 @@ using Godot;
 using System;
 namespace main
 {
+
+
+	//Applies to the main node/scene
 	public partial class Program : Node
 	{
 		public override void _Ready()
@@ -17,9 +20,11 @@ namespace main
 			Dummy dummy = new Dummy("res://dummy.svg", new Vector2(600f, 400f));
 			AddChild(dummy);
 
-			
+
 
 		}
+
+		//Constantly checks the state of dummy, if there is no dummy in chiuld nodes allows player to spawn a new one
 		public override void _Process(double delta)
 		{
 			if (Input.IsActionJustPressed("ui_accept"))
@@ -42,6 +47,6 @@ namespace main
 				}
 			}
 		}
-	
+
 	}
 }

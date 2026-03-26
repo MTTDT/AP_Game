@@ -2,6 +2,7 @@ using Godot;
 using System;
 namespace main
 {
+    //Creates a bullet as RigidBody2D
     public partial class Bullet : RigidBody2D
     {
         private Vector2 Velocity { get; set; }
@@ -18,6 +19,7 @@ namespace main
             MaxDistance = maxDistance;
         }
 
+        //creates a complete bullet
         public override void _Ready()
         {
 
@@ -41,6 +43,8 @@ namespace main
             LinearVelocity = Direction.Normalized() * Velocity.Length();
 
         }
+
+        //Constantly checks the position
         public override void _Process(double delta)
         {
             float traveled = GlobalPosition.DistanceTo(startPosition);

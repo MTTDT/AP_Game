@@ -14,7 +14,9 @@ namespace main
             TexturePath = texturePath;
 
         }
+        
 
+        //Creates a complete gun/barel
         public override void _Ready()
         {
 
@@ -26,16 +28,17 @@ namespace main
             AddChild(sprite);
 
             shooter = new Marker2D();
-            shooter.Position = new Vector2(60f,0f);
+            shooter.Position = new Vector2(60f, 0f);
             AddChild(shooter);
 
         }
-
+        
+        //Creates a bnullet in the direction a a barrel
         private void Shoot()
         {
             Vector2 dir = (shooter.GlobalPosition - GlobalPosition).Normalized();
 
-            Bullet bullet = new Bullet(new Vector2(500f, 0f), dir, texturePath: "res://bullet.svg",200f);
+            Bullet bullet = new Bullet(new Vector2(500f, 0f), dir, texturePath: "res://bullet.svg", 200f);
 
             bullet.GlobalPosition = shooter.GlobalPosition;
             bullet.Rotation = GlobalRotation;
@@ -43,23 +46,17 @@ namespace main
             GetTree().CurrentScene.AddChild(bullet);
         }
 
+        //Checks for the input
         public override void _Input(InputEvent @event)
         {
             if (@event is InputEventMouseButton mouseEvent &&
                 mouseEvent.ButtonIndex == MouseButton.Left &&
                 !mouseEvent.Pressed)
             {
-                			if (IsMultiplayerAuthority()) Shoot();
+                if (IsMultiplayerAuthority()) Shoot();
             }
-        }
+                        LookAt(GetGlobalMousePosition());
 
-        public void GetInput()
-        {
-            LookAt(GetGlobalMousePosition());
-        }
-        public override void _PhysicsProcess(double delta)
-        {
-            if (IsMultiplayerAuthority()) GetInput();
         }
     }
 }

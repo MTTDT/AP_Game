@@ -2,6 +2,8 @@ using Godot;
 using System;
 namespace main
 {
+    
+    //Creates Dummy as Area2D node
     public partial class Dummy : Area2D
     {
         private String TexturePath { get; set; }
@@ -9,6 +11,8 @@ namespace main
         private int _health = 100;
 
         private Label _hpLabel;
+
+        //Constructor
         public Dummy(string texturePath, Vector2 position)
         {
             this.TexturePath = texturePath;
@@ -16,6 +20,8 @@ namespace main
             this._Position = position;
 
         }
+
+        //Creates complete Dummy 
         public override void _Ready()
         {
 
@@ -39,15 +45,17 @@ namespace main
             _hpLabel = new Label();
             UpdateHealthText();
 
-            _hpLabel.Position = new Vector2(-20, -60); 
+            _hpLabel.Position = new Vector2(-20, -60);
             _hpLabel.HorizontalAlignment = HorizontalAlignment.Center;
-            
+
             AddChild(_hpLabel);
 
 
 
 
         }
+
+        //Checks if any bullets are inside the collision area and acounts for health
         private void OnBodyEntered(Node2D body)
         {
             if (body is Bullet bullet)
@@ -62,13 +70,15 @@ namespace main
                     QueueFree();
             }
         }
-        
+
+
+        //Updates health label.
         private void UpdateHealthText()
         {
             if (_hpLabel != null)
             {
                 _hpLabel.Text = $"HP: {_health}";
-                
+
                 // Optional: Change color to red when low health
                 if (_health < 30)
                 {
@@ -76,5 +86,5 @@ namespace main
                 }
             }
         }
-	}
+    }
 }

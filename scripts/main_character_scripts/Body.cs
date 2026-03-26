@@ -2,6 +2,7 @@ using Godot;
 using System;
 namespace main
 {
+	//Creates body as Character2D
 	public partial class Body : CharacterBody2D
 	{
 		private String TexturePath { get; set; }
@@ -29,6 +30,8 @@ namespace main
 
 
 		}
+
+		// Creates complete body
 		public override void _Ready()
 		{
 
@@ -53,20 +56,21 @@ namespace main
 
 		}
 
+		// Accounts for inputs
 		public void GetInput()
 		{
 			_rotationDirection = Input.GetAxis("a", "d");
 			Velocity = Transform.Y * Input.GetAxis("w", "s") * Speed;
 		}
 
+		//Constantly waits for input and acounts for it
 		public override void _PhysicsProcess(double delta)
 		{
-			if (IsMultiplayerAuthority())
-			{
-				GetInput();
-				Rotation += _rotationDirection * RotationSpeed * (float)delta;
-				MoveAndSlide();
-			}
+			
+			GetInput();
+			Rotation += _rotationDirection * RotationSpeed * (float)delta;
+			MoveAndSlide();
+			
 		}
 
 	}
