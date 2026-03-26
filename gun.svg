@@ -1,0 +1,6 @@
+<svg width="10" height="60" xmlns="http://www.w3.org/2000/svg">
+  <!-- Base (at top — connects to turret) -->
+  <rect x="0" y="0" width="10" height="10" rx="2" ry="2" fill="#2d4a2f"/>
+  <!-- Barrel (points down from base) -->
+  <rect x="3" y="10" width="4" height="50" rx="2" ry="2" fill="#4a7c4e" stroke="#2d4a2f" stroke-width="1"/>
+</svg>

@@ -1,0 +1,8 @@
+<svg width="6" height="12" xmlns="http://www.w3.org/2000/svg">
+  <!-- Tip -->
+  <ellipse cx="3" cy="3" rx="3" ry="4" fill="#f0c040"/>
+  <!-- Body -->
+  <rect x="0" y="3" width="6" height="7" fill="#c8a020"/>
+  <!-- Base -->
+  <rect x="0" y="10" width="6" height="2" fill="#8a6010"/>
+</svg>
