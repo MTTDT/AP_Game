@@ -14,7 +14,7 @@ namespace main
             TexturePath = texturePath;
 
         }
-        
+
 
         //Creates a complete gun/barel
         public override void _Ready()
@@ -32,31 +32,51 @@ namespace main
             AddChild(shooter);
 
         }
-        
+
         //Creates a bnullet in the direction a a barrel
         private void Shoot()
         {
             Vector2 dir = (shooter.GlobalPosition - GlobalPosition).Normalized();
 
-            Bullet bullet = new Bullet(new Vector2(500f, 0f), dir, texturePath: "res://bullet.svg", 200f);
-
-            bullet.GlobalPosition = shooter.GlobalPosition;
-            bullet.Rotation = GlobalRotation;
-
-            GetTree().CurrentScene.AddChild(bullet);
+            // Tell ALL peers (including self) to spawn this bullet
+            Rpc(nameof(SpawnBullet), shooter.GlobalPosition, GlobalRotation, dir);
         }
 
         //Checks for the input
+        public override void _Process(double delta)
+        {
+            if (!IsMultiplayerAuthority()) return;
+
+            LookAt(GetGlobalMousePosition());
+            Rpc(nameof(SyncGunRotation), GlobalRotation);
+        }
         public override void _Input(InputEvent @event)
         {
+            if (!IsMultiplayerAuthority()) return;
             if (@event is InputEventMouseButton mouseEvent &&
                 mouseEvent.ButtonIndex == MouseButton.Left &&
                 !mouseEvent.Pressed)
             {
-                if (IsMultiplayerAuthority()) Shoot();
+                Shoot();
             }
-                        LookAt(GetGlobalMousePosition());
+            
+        }
+        
+        [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
+        private void SpawnBullet(Vector2 spawnPos, float spawnRot, Vector2 dir)
+        {
+            Bullet bullet = new Bullet(new Vector2(500f, 0f), dir, "res://bullet.svg", 200f);
+            bullet.GlobalPosition = spawnPos;
+            bullet.Rotation = spawnRot;
+            GetTree().CurrentScene.AddChild(bullet);
+        }
 
+        // Runs on all OTHER peers to rotate this gun visually
+        [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
+             TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+        private void SyncGunRotation(float rot)
+        {
+            GlobalRotation = rot;
         }
     }
 }

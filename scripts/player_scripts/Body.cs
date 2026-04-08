@@ -5,7 +5,7 @@ namespace main
 	//Creates body as Character2D
 	public partial class Body : CharacterBody2D
 	{
-		private String TexturePath { get; set; }
+		private string TexturePath { get; set; }
 		private Color Color { get; set; }
 		private Node Owner { get; set; }
 		private Vector2 Size { get; set; }
@@ -47,13 +47,18 @@ namespace main
 			// sprite.Scale = Size / sprite.Texture.GetSize();
 			AddChild(sprite);
 
-			Camera2D camera = new Camera2D();
-			camera.Enabled = true;
-			AddChild(camera);
+			if (IsMultiplayerAuthority())
+			{
+				Camera2D camera = new Camera2D();
+				camera.Enabled = true;
+				AddChild(camera);
+			}
+
 
 			Gun gun = new Gun("res://gun.svg", Color);
+			gun.Name = "Gun";
+			gun.SetMultiplayerAuthority(GetMultiplayerAuthority());
 			AddChild(gun);
-
 		}
 
 		// Accounts for inputs
@@ -66,12 +71,23 @@ namespace main
 		//Constantly waits for input and acounts for it
 		public override void _PhysicsProcess(double delta)
 		{
-			
+			// Only process movement for YOUR body
+			if (!IsMultiplayerAuthority()) return;
+
 			GetInput();
 			Rotation += _rotationDirection * RotationSpeed * (float)delta;
 			MoveAndSlide();
-			
+
+			// Sync our position and rotation to all other peers
+			Rpc(nameof(SyncTransform), Position, Rotation);
 		}
+		
+		[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+        private void SyncTransform(Vector2 pos, float rot)
+        {
+            Position = pos;
+            Rotation = rot;
+        }
 
 	}
 }
