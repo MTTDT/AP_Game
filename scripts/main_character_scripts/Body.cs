@@ -1,48 +1,37 @@
 using Godot;
 using System;
+
 namespace main
 {
 	public partial class Body : CharacterBody2D
 	{
-		private String TexturePath { get; set; }
-		private Color Color { get; set; }
-		private Node Owner { get; set; }
-		private Vector2 Size { get; set; }
-		private Vector2 _Position { get; set; }
+		[Export] public string TexturePath { get; set; }
+		[Export] public Color Color { get; set; }
+		[Export] public Vector2 Size { get; set; }
+		[Export] public Vector2 StartPosition { get; set; }
 
-		[Export]
-		public int Speed { get; set; } = 400;
-
-		[Export]
-		public float RotationSpeed { get; set; } = 4f;
+		[Export] public int Speed { get; set; } = 400;
+		[Export] public float RotationSpeed { get; set; } = 4f;
 
 		private float _rotationDirection;
 
-		public Body(string texturePath, Color color, Node owner, Vector2 size, Vector2 position)
-		{
-			this.TexturePath = texturePath;
-			this.Color = color;
-			this.Owner = owner;
-			this.Size = size;
-			this._Position = position;
-
-
-
-		}
 		public override void _Ready()
 		{
+			Position = StartPosition;
 
-			Position = _Position;
-
-			CollisionLayer = 1;
-			CollisionMask = 2;
-
+			CollisionLayer = 1; // jugador
+			CollisionMask = 2 | 3; // bordes + dummy
 
 			Sprite2D sprite = new Sprite2D();
 			sprite.Texture = GD.Load<Texture2D>(TexturePath);
 			sprite.Modulate = Color;
-			// sprite.Scale = Size / sprite.Texture.GetSize();
 			AddChild(sprite);
+
+			CollisionShape2D col = new CollisionShape2D();
+			RectangleShape2D shape = new RectangleShape2D();
+			shape.Size = Size;
+			col.Shape = shape;
+			AddChild(col);
 
 			Camera2D camera = new Camera2D();
 			camera.Enabled = true;
@@ -50,7 +39,6 @@ namespace main
 
 			Gun gun = new Gun("res://gun.svg", Color);
 			AddChild(gun);
-
 		}
 
 		public void GetInput()
@@ -61,13 +49,9 @@ namespace main
 
 		public override void _PhysicsProcess(double delta)
 		{
-			if (IsMultiplayerAuthority())
-			{
-				GetInput();
-				Rotation += _rotationDirection * RotationSpeed * (float)delta;
-				MoveAndSlide();
-			}
+			GetInput();
+			Rotation += _rotationDirection * RotationSpeed * (float)delta;
+			MoveAndSlide();
 		}
-
 	}
 }
