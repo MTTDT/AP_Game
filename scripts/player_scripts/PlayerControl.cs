@@ -143,52 +143,62 @@ namespace main
             );
             body.Name = $"Player_{peerId}";
             body.SetMultiplayerAuthority((int)peerId); // Critical: assigns ownership
+
+            body.BodyDestroyed += () => OnBodyDestroyed(peerId, body);
+
             Player player = new Player(peerId, body, $"Player{peerId}");
             _players.AddPlayer(player);
             AddChild(body);
 
             GD.Print($"Spawned player {peerId} (I am {Multiplayer.GetUniqueId()})");
         }
+        
+        private void OnBodyDestroyed(long peerId, Body body)
+        {
+            _players.RemovePlayer(peerId);
+            body.QueueFree();
+            // SpawnPlayer(peerId);
+        }
 
 		//Constantly checks the state of dummy, if there is no dummy in chiuld nodes allows player to spawn a new one
-		public override void _Process(double delta)
-		{
-			if (Input.IsActionJustPressed("quit"))
-			{
-				// Disconnect from multiplayer cleanly
-				if (Multiplayer.MultiplayerPeer != null)
-				{
-					Multiplayer.MultiplayerPeer.Close();
-					Multiplayer.MultiplayerPeer = null;
-				}
+        public override void _Process(double delta)
+        {
+            if (Input.IsActionJustPressed("quit"))
+            {
+                // Disconnect from multiplayer cleanly
+                if (Multiplayer.MultiplayerPeer != null)
+                {
+                    Multiplayer.MultiplayerPeer.Close();
+                    Multiplayer.MultiplayerPeer = null;
+                }
 
-				// Reset game state so menu starts fresh
-				GameState.Role = GameState.NetworkRole.None;
-				GameState.HostIP = "127.0.0.1";
+                // Reset game state so menu starts fresh
+                GameState.Role = GameState.NetworkRole.None;
+                GameState.HostIP = "127.0.0.1";
 
-				GetTree().ChangeSceneToFile("res://main_menu.tscn"); // your menu scene name
-			}
+                GetTree().ChangeSceneToFile("res://main_menu.tscn"); // your menu scene name
+            }
 
-			if (Input.IsActionJustPressed("ui_accept"))
-			{
-				// Check if any Dummy exists among children
-				bool dummyExists = false;
-				foreach (Node child in GetChildren())
-				{
-					if (child is Dummy)
-					{
-						dummyExists = true;
-						break;
-					}
-				}
+            if (Input.IsActionJustPressed("ui_accept"))
+            {
+                // Check if any Dummy exists among children
+                bool dummyExists = false;
+                foreach (Node child in GetChildren())
+                {
+                    if (child is Dummy)
+                    {
+                        dummyExists = true;
+                        break;
+                    }
+                }
 
-				if (!dummyExists)
-				{
-					Dummy dummy = new Dummy("res://dummy.svg", new Vector2(600f, 400f));
-					AddChild(dummy);
-				}
-			}
-		}
+                if (!dummyExists)
+                {
+                    Dummy dummy = new Dummy("res://dummy.svg", new Vector2(600f, 400f));
+                    AddChild(dummy);
+                }
+            }
+        }
 
 	}
 }

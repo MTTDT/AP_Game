@@ -65,7 +65,7 @@ namespace main
         [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
         private void SpawnBullet(Vector2 spawnPos, float spawnRot, Vector2 dir)
         {
-            Bullet bullet = new Bullet(new Vector2(500f, 0f), dir, "res://bullet.svg", 200f);
+            Bullet bullet = new Bullet(new Vector2(500f, 0f), dir, "res://bullet.svg", 400f);
             bullet.GlobalPosition = spawnPos;
             bullet.Rotation = spawnRot;
             GetTree().CurrentScene.AddChild(bullet);
