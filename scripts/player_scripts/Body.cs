@@ -156,11 +156,14 @@ namespace main
 			Rpc(nameof(SyncTransform), Position, Rotation, _hpLabel.Position, _hpLabel.Rotation);
 		}
 
-		[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
-		private void SyncTransform(Vector2 pos, float rot)
+		[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
+     	TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+		private void SyncTransform(Vector2 pos, float rot, Vector2 labelPos, float labelRot)
 		{
 			Position = pos;
 			Rotation = rot;
+			_hpLabel.Position = labelPos;
+			_hpLabel.Rotation = labelRot;
 		}
 		
 
