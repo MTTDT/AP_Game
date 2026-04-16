@@ -1,43 +1,77 @@
 using Godot;
+using System;
 
-public partial class Dummy : CharacterBody2D
+namespace main
 {
-	private string _texturePath;
-	private Vector2 _startPos;
-
-	public int Health { get; private set; } = 100;
-
-	public Dummy() {}
-
-	public Dummy(string texturePath, Vector2 startPos)
+	public partial class Dummy : StaticBody2D
 	{
-		_texturePath = texturePath;
-		_startPos = startPos;
-	}
+		private string TexturePath { get; set; }
+		private Vector2 _Position { get; set; }
+		private int _health = 100;
 
-	public override void _Ready()
-	{
-		Position = _startPos;
+		private Label _hpLabel;
 
-		SetDeferred("collision_layer", 2);
-		SetDeferred("collision_mask", 1 | 4);
+		public Dummy(string texturePath, Vector2 position)
+		{
+			TexturePath = texturePath;
+			_Position = position;
+		}
 
-		Sprite2D sprite = new Sprite2D();
-		sprite.Texture = GD.Load<Texture2D>(_texturePath);
-		AddChild(sprite);
+		public override void _Ready()
+		{
+			Position = _Position;
 
-		CollisionShape2D shape = new CollisionShape2D();
-		RectangleShape2D rect = new RectangleShape2D();
-		rect.Size = new Vector2(64, 64);
-		shape.Shape = rect;
-		AddChild(shape);
-	}
+			// El Dummy se comporta como roca: bloquea jugador y balas
+			SetDeferred("collision_layer", 2);
+			SetDeferred("collision_mask", 1 | 4);
 
-	public void TakeDamage(int amount)
-	{
-		Health -= amount;
+			// Sprite
+			Sprite2D sprite = new Sprite2D();
+			sprite.Texture = GD.Load<Texture2D>(TexturePath);
+			AddChild(sprite);
 
-		if (Health <= 0)
-			QueueFree();
+			// Cuerpo físico (colisión sólida)
+			CollisionShape2D col = new CollisionShape2D();
+			RectangleShape2D shape = new RectangleShape2D();
+			shape.Size = new Vector2(40, 60);
+			col.Shape = shape;
+			AddChild(col);
+
+			// Hitbox para detectar balas
+			Area2D hitbox = new Area2D();
+			hitbox.CollisionLayer = 0; // no colisiona físicamente
+			hitbox.CollisionMask = 4;  // detecta balas
+
+			CollisionShape2D hitShape = new CollisionShape2D();
+			hitShape.Shape = new RectangleShape2D() { Size = new Vector2(40, 60) };
+			hitbox.AddChild(hitShape);
+
+			hitbox.BodyEntered += OnBulletHit;
+			AddChild(hitbox);
+
+			// HP Label
+			_hpLabel = new Label();
+			_hpLabel.Position = new Vector2(-20, -60);
+			AddChild(_hpLabel);
+			UpdateHealthText();
+		}
+
+		private void OnBulletHit(Node2D body)
+		{
+			if (body is Bullet bullet)
+			{
+				_health -= 10;
+				UpdateHealthText();
+				bullet.QueueFree();
+
+				if (_health <= 0)
+					QueueFree();
+			}
+		}
+
+		private void UpdateHealthText()
+		{
+			_hpLabel.Text = $"HP: {_health}";
+		}
 	}
 }

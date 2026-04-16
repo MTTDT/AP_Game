@@ -36,6 +36,18 @@ size = Vector2(500, 10)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_q6r6c"]
 size = Vector2(500, 10)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hqns4"]
+size = Vector2(2180, 10)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_x0ka3"]
+size = Vector2(2180, 10)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0h7mo"]
+size = Vector2(10, 1300)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_k73cj"]
+size = Vector2(10, 1300)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rj586"]
 size = Vector2(120, 80)
 
@@ -132,6 +144,30 @@ collision_mask = 9
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="WorldBounds/BottomBound2" unique_id=1167915808]
 position = Vector2(290, 320)
 shape = SubResource("RectangleShape2D_q6r6c")
+
+[node name="LimitUp" type="StaticBody2D" parent="WorldBounds" unique_id=2121260621]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/LimitUp" unique_id=761234402]
+position = Vector2(0, -640)
+shape = SubResource("RectangleShape2D_hqns4")
+
+[node name="LimitDown" type="StaticBody2D" parent="WorldBounds" unique_id=1279916333]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/LimitDown" unique_id=572348407]
+position = Vector2(0, 640)
+shape = SubResource("RectangleShape2D_x0ka3")
+
+[node name="LimitLeft" type="StaticBody2D" parent="WorldBounds" unique_id=1520958651]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/LimitLeft" unique_id=107770850]
+position = Vector2(-1090, 0)
+shape = SubResource("RectangleShape2D_0h7mo")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="WorldBounds" unique_id=311866700]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/StaticBody2D" unique_id=19754945]
+position = Vector2(1090, 0)
+shape = SubResource("RectangleShape2D_k73cj")
 
 [node name="Rocks" type="Node2D" parent="." unique_id=828310395]
 
