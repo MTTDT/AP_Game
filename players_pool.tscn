@@ -1,20 +1,9 @@
 [gd_scene format=3 uid="uid://b6dv35k1bwrd2"]
 
-[ext_resource type="Script" uid="uid://cpnn1cyn42knk" path="res://scripts/players_pool/PlayersPool.cs" id="1_eq24v"]
-
 [node name="Node" type="Node" unique_id=690618780]
-script = ExtResource("1_eq24v")
 
 [node name="ItemList" type="ItemList" parent="." unique_id=2025354817]
-offset_left = 326.0
+offset_left = 328.0
 offset_top = 109.0
-offset_right = 713.0
+offset_right = 715.0
 offset_bottom = 415.0
-
-[node name="Button" type="Button" parent="." unique_id=1110404581]
-offset_left = 427.0
-offset_top = 482.0
-offset_right = 586.0
-offset_bottom = 513.0
-text = "Start
-"
