@@ -20,12 +20,16 @@ namespace main
 		public float RotationSpeed { get; set; } = 5f;
 
 		private float _rotationDirection;
-		private int _hp = 100;
+		public int _hp { get; private set; } = 100;
 		private Label _hpLabel;
 
 		private Timer _resetTimer;
 
 		private Timer _increasedHealtTimer;
+
+		private Rect2 MapBounds;
+		private Camera2D _camera;
+
 
 
 		public Body(string texturePath, Color color, Node owner, Vector2 size, Vector2 position)
@@ -44,25 +48,20 @@ namespace main
 		public override void _Ready()
 		{
 
+			SetDeferred("collision_layer", 1);
+			SetDeferred("collision_mask", 2 | 3 | 5);
 			Position = _Position;
-
-			CollisionLayer = 1;
-			CollisionMask = 2;
 
 
 			Sprite2D sprite = new Sprite2D();
 			sprite.Texture = GD.Load<Texture2D>(TexturePath);
 			sprite.Modulate = Color;
+			sprite.Centered = true;
+
 			// sprite.Scale = Size / sprite.Texture.GetSize();
 			AddChild(sprite);
 
-			if (IsMultiplayerAuthority())
-			{
-				Camera2D camera = new Camera2D();
-				camera.Enabled = true;
-				AddChild(camera);
-			}
-
+			
 
 			Gun gun = new Gun("res://gun.svg", Color);
 			gun.Name = "Gun";
@@ -93,9 +92,26 @@ namespace main
 			hitShape.Shape = square;
 			hitbox.AddChild(hitShape);
 
-			hitbox.BodyEntered += OnBulletHit;
+			Sprite2D map = GetTree().CurrentScene.GetNode<Sprite2D>("Sprite2D");
 
-			AddChild(hitbox);
+			Vector2 mapPos = map.GlobalPosition;
+			Vector2 mapSize = map.Texture.GetSize() * map.Scale;
+
+			MapBounds = new Rect2(mapPos - mapSize / 2f, mapSize);
+
+			_camera = new Camera2D();
+			_camera.Enabled = IsMultiplayerAuthority();
+
+			_camera.LimitLeft = (int)MapBounds.Position.X;
+			_camera.LimitTop = (int)MapBounds.Position.Y;
+			_camera.LimitRight = (int)(MapBounds.Position.X + MapBounds.Size.X);
+			_camera.LimitBottom = (int)(MapBounds.Position.Y + MapBounds.Size.Y);
+
+			AddChild(_camera);
+
+			// hitbox.BodyEntered += OnBulletHit;
+
+			// AddChild(hitbox);
 
 			_resetTimer = new Timer();
 			_resetTimer.WaitTime = 5.0;
@@ -120,24 +136,17 @@ namespace main
 		}
 
 
-		[Signal]
-		public delegate void BodyDestroyedEventHandler();
+
 		// Called whenever a physics body enters the hitbox
-		private void OnBulletHit(Node body)
+		public void TakeDamage(int amount)
 		{
-			if (body is not Bullet) return;
-
-			body.QueueFree();
-
-			_hp = Mathf.Max(0, _hp - 10);
-			_hpLabel.Text = $"HP: {_hp}";
-
-			_resetTimer.Start();
+			_hp -= amount;
+			_hpLabel.Text = _hp.ToString();
 
 			if (_hp <= 0)
 			{
-				GD.Print("Dead!");
-				EmitSignal(SignalName.BodyDestroyed);
+				EmitSignal(nameof(BodyDestroyed));
+				QueueFree();
 			}
 		}
 		
