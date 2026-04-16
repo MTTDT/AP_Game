@@ -1,77 +1,43 @@
 using Godot;
-using System;
 
-namespace main
+public partial class Dummy : CharacterBody2D
 {
-	public partial class Dummy : CharacterBody2D
+	private string _texturePath;
+	private Vector2 _startPos;
+
+	public int Health { get; private set; } = 100;
+
+	public Dummy() {}
+
+	public Dummy(string texturePath, Vector2 startPos)
 	{
-		private string TexturePath { get; set; }
-		private Vector2 _Position { get; set; }
-		private int _health = 100;
+		_texturePath = texturePath;
+		_startPos = startPos;
+	}
 
-		private Label _hpLabel;
-		private Area2D _hitbox;
+	public override void _Ready()
+	{
+		Position = _startPos;
 
-		public Dummy(string texturePath, Vector2 position)
-		{
-			TexturePath = texturePath;
-			_Position = position;
-		}
+		SetDeferred("collision_layer", 2);
+		SetDeferred("collision_mask", 1 | 4);
 
-		public override void _Ready()
-		{
-			Position = _Position;
+		Sprite2D sprite = new Sprite2D();
+		sprite.Texture = GD.Load<Texture2D>(_texturePath);
+		AddChild(sprite);
 
-			CollisionLayer = 3; // dummy
-			CollisionMask = 1;  // detecta jugador si quieres
+		CollisionShape2D shape = new CollisionShape2D();
+		RectangleShape2D rect = new RectangleShape2D();
+		rect.Size = new Vector2(64, 64);
+		shape.Shape = rect;
+		AddChild(shape);
+	}
 
-			// Sprite
-			Sprite2D sprite = new Sprite2D();
-			sprite.Texture = GD.Load<Texture2D>(TexturePath);
-			AddChild(sprite);
+	public void TakeDamage(int amount)
+	{
+		Health -= amount;
 
-			// Cuerpo físico del dummy
-			CollisionShape2D bodyCol = new CollisionShape2D();
-			bodyCol.Shape = new RectangleShape2D { Size = new Vector2(40, 60) };
-			AddChild(bodyCol);
-
-			// Hitbox para detectar balas
-			_hitbox = new Area2D();
-			_hitbox.CollisionLayer = 3; // dummy
-			_hitbox.CollisionMask = 4;  // balas
-			AddChild(_hitbox);
-
-			CollisionShape2D hitboxCol = new CollisionShape2D();
-			hitboxCol.Shape = new RectangleShape2D { Size = new Vector2(40, 60) };
-			_hitbox.AddChild(hitboxCol);
-
-			_hitbox.AreaEntered += OnAreaEntered;
-
-			// Label de vida
-			_hpLabel = new Label();
-			_hpLabel.Position = new Vector2(-20, -60);
-			AddChild(_hpLabel);
-			UpdateHealthText();
-		}
-
-		private void OnAreaEntered(Area2D area)
-		{
-			if (area is Bullet bullet)
-			{
-				_health -= 10;
-				UpdateHealthText();
-				bullet.QueueFree();
-
-				if (_health <= 0)
-					QueueFree();
-			}
-		}
-
-		private void UpdateHealthText()
-		{
-			_hpLabel.Text = $"HP: {_health}";
-			if (_health < 30)
-				_hpLabel.Modulate = Colors.Red;
-		}
+		if (Health <= 0)
+			QueueFree();
 	}
 }

@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://b6dv35k1bwrd2"]
+
+[node name="Node" type="Node" unique_id=690618780]
+
+[node name="ItemList" type="ItemList" parent="." unique_id=2025354817]
+offset_left = 328.0
+offset_top = 109.0
+offset_right = 715.0
+offset_bottom = 415.0

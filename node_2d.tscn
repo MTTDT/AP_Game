@@ -1,62 +1,234 @@
 [gd_scene format=3 uid="uid://dm1hn4mk1xbej"]
 
-[ext_resource type="Texture2D" uid="uid://dr1agny8xh3i0" path="res://Fondo.png" id="2_0e48y"]
-[ext_resource type="Script" uid="uid://c4amjo0rjy1xd" path="res://scripts/main_character_scripts/Body.cs" id="3_0hol4"]
-[ext_resource type="Script" uid="uid://b56c2hg0la70n" path="res://scripts/dummy/Dummy.cs" id="4_q6r6c"]
+[ext_resource type="Script" uid="uid://svxxmxhroxtq" path="res://scripts/player_scripts/PlayerControl.cs" id="1_wtcfe"]
+[ext_resource type="Texture2D" uid="uid://cdm0qsm2yt1wc" path="res://FondoFinal.png" id="2_0e48y"]
+[ext_resource type="Texture2D" uid="uid://c84vlvyxdwfk6" path="res://Rock.png" id="3_epypp"]
+[ext_resource type="Texture2D" uid="uid://ci1edy7fvb0x" path="res://Rock2.png" id="4_hqns4"]
+[ext_resource type="Texture2D" uid="uid://dlkykg6bnwgiq" path="res://Rock3.png" id="5_x0ka3"]
+[ext_resource type="Texture2D" uid="uid://cus7sbydcccid" path="res://Rock4.png" id="6_0h7mo"]
+[ext_resource type="Script" uid="uid://dcw8lud63v87q" path="res://Bush.cs" id="7_hqns4"]
+[ext_resource type="Texture2D" uid="uid://ck57jt7an2yiy" path="res://Shrub1.png" id="7_ir8iy"]
+[ext_resource type="Texture2D" uid="uid://bwijxtm1tg0yd" path="res://Shrub2.png" id="8_hqns4"]
+[ext_resource type="Texture2D" uid="uid://bjhmhn5y7lm4x" path="res://Shrub3.png" id="9_x0ka3"]
+[ext_resource type="Texture2D" uid="uid://bqifmkgy5dfdk" path="res://Shrub4.png" id="10_0h7mo"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_0e48y"]
-size = Vector2(10, 640)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dpw2a"]
+size = Vector2(10, 260)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_epypp"]
-size = Vector2(10, 640)
+size = Vector2(10, 260)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jqsg2"]
+size = Vector2(10, 260)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0e48y"]
+size = Vector2(10, 260)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8xc84"]
+size = Vector2(500, 10)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0hol4"]
-size = Vector2(1075.2, 10)
+size = Vector2(500, 10)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ynkqc"]
+size = Vector2(500, 10)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_q6r6c"]
-size = Vector2(1075.2, 10)
+size = Vector2(500, 10)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rj586"]
+size = Vector2(120, 80)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nr8wp"]
+size = Vector2(180, 80)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ta5nu"]
+size = Vector2(80, 140)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_flf07"]
+size = Vector2(100, 80)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_nr8wp"]
+radius = 50.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_d2bti"]
+size = Vector2(80, 80)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ta5nu"]
+radius = 50.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_flf07"]
+radius = 50.0
 
 [node name="Node2D" type="Node2D" unique_id=432543561]
+script = ExtResource("1_wtcfe")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1361290676]
-scale = Vector2(2.4665177, 2.0109375)
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2062944513]
+scale = Vector2(4.25734, 3.4644942)
 texture = ExtResource("2_0e48y")
 
-[node name="WorldBounds" type="Node2D" parent="." unique_id=145955962]
+[node name="WorldBounds" type="Node2D" parent="." unique_id=1420932131]
 
-[node name="LeftBound" type="StaticBody2D" parent="WorldBounds" unique_id=2137428528]
+[node name="LeftBound" type="StaticBody2D" parent="WorldBounds" unique_id=566808795]
 collision_layer = 2
+collision_mask = 9
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/LeftBound" unique_id=699932011]
-position = Vector2(-537.6, 0)
-shape = SubResource("RectangleShape2D_0e48y")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/LeftBound" unique_id=1791633776]
+position = Vector2(-537.6, -185)
+shape = SubResource("RectangleShape2D_dpw2a")
 
-[node name="RightBound" type="StaticBody2D" parent="WorldBounds" unique_id=767246658]
+[node name="LeftBound2" type="StaticBody2D" parent="WorldBounds" unique_id=1688663061]
 collision_layer = 2
+collision_mask = 9
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/RightBound" unique_id=320277749]
-position = Vector2(537.6, 0)
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="WorldBounds/LeftBound2" unique_id=2128252942]
+position = Vector2(-537.6, 185)
 shape = SubResource("RectangleShape2D_epypp")
 
-[node name="TopBound" type="StaticBody2D" parent="WorldBounds" unique_id=1113801761]
+[node name="RightBound" type="StaticBody2D" parent="WorldBounds" unique_id=1208194620]
 collision_layer = 2
+collision_mask = 9
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/TopBound" unique_id=5374080]
-position = Vector2(0, -320)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/RightBound" unique_id=603409772]
+position = Vector2(537.6, -185)
+shape = SubResource("RectangleShape2D_jqsg2")
+
+[node name="RightBound2" type="StaticBody2D" parent="WorldBounds" unique_id=1199361471]
+collision_layer = 2
+collision_mask = 9
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="WorldBounds/RightBound2" unique_id=1885780449]
+position = Vector2(537.6, 185)
+shape = SubResource("RectangleShape2D_0e48y")
+
+[node name="TopBound" type="StaticBody2D" parent="WorldBounds" unique_id=1955893118]
+collision_layer = 2
+collision_mask = 9
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/TopBound" unique_id=614362722]
+position = Vector2(-290, -320)
+shape = SubResource("RectangleShape2D_8xc84")
+
+[node name="TopBound2" type="StaticBody2D" parent="WorldBounds" unique_id=1407384923]
+collision_layer = 2
+collision_mask = 9
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="WorldBounds/TopBound2" unique_id=450056671]
+position = Vector2(290, -320)
 shape = SubResource("RectangleShape2D_0hol4")
 
-[node name="BottomBound" type="StaticBody2D" parent="WorldBounds" unique_id=770612599]
+[node name="BottomBound" type="StaticBody2D" parent="WorldBounds" unique_id=2099820081]
 collision_layer = 2
+collision_mask = 9
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/BottomBound" unique_id=1068222390]
-position = Vector2(0, 320)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/BottomBound" unique_id=1327871750]
+position = Vector2(-290, 320)
+shape = SubResource("RectangleShape2D_ynkqc")
+
+[node name="BottomBound2" type="StaticBody2D" parent="WorldBounds" unique_id=519984015]
+collision_layer = 2
+collision_mask = 9
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="WorldBounds/BottomBound2" unique_id=1167915808]
+position = Vector2(290, 320)
 shape = SubResource("RectangleShape2D_q6r6c")
 
-[node name="Body" type="CharacterBody2D" parent="." unique_id=1089889009]
-script = ExtResource("3_0hol4")
-TexturePath = "res://body.svg"
-Color = Color(0.12941177, 0.011764706, 0.078431375, 1)
-Size = Vector2(64, 64)
+[node name="Rocks" type="Node2D" parent="." unique_id=828310395]
 
-[node name="Dummy" type="CharacterBody2D" parent="." unique_id=1250721091]
-script = ExtResource("4_q6r6c")
+[node name="Rock1" type="StaticBody2D" parent="Rocks" unique_id=760988422]
+position = Vector2(-800, 400)
+collision_layer = 2
+collision_mask = 9
+
+[node name="Sprite2D" type="Sprite2D" parent="Rocks/Rock1" unique_id=1653092549]
+texture = ExtResource("3_epypp")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rocks/Rock1" unique_id=1617980385]
+shape = SubResource("RectangleShape2D_rj586")
+
+[node name="Rock2" type="StaticBody2D" parent="Rocks" unique_id=637544075]
+position = Vector2(-740, -200)
+collision_layer = 2
+collision_mask = 9
+
+[node name="Sprite2D" type="Sprite2D" parent="Rocks/Rock2" unique_id=207980104]
+texture = ExtResource("4_hqns4")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rocks/Rock2" unique_id=611754871]
+shape = SubResource("RectangleShape2D_nr8wp")
+
+[node name="Rock3" type="StaticBody2D" parent="Rocks" unique_id=1427988877]
+position = Vector2(900, -400)
+collision_layer = 2
+collision_mask = 9
+
+[node name="Sprite2D" type="Sprite2D" parent="Rocks/Rock3" unique_id=1858078088]
+texture = ExtResource("5_x0ka3")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rocks/Rock3" unique_id=1880824970]
+shape = SubResource("RectangleShape2D_ta5nu")
+
+[node name="Rock4" type="StaticBody2D" parent="Rocks" unique_id=1465537925]
+position = Vector2(740, 280)
+collision_layer = 2
+collision_mask = 9
+
+[node name="Sprite2D" type="Sprite2D" parent="Rocks/Rock4" unique_id=965315980]
+texture = ExtResource("6_0h7mo")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rocks/Rock4" unique_id=119242920]
+shape = SubResource("RectangleShape2D_flf07")
+
+[node name="Shrubs" type="Node2D" parent="." unique_id=165136554]
+
+[node name="Shrub1" type="Area2D" parent="Shrubs" unique_id=1307773516]
+position = Vector2(-900, 150)
+collision_layer = 16
+script = ExtResource("7_hqns4")
+
+[node name="Sprite2D" type="Sprite2D" parent="Shrubs/Shrub1" unique_id=885836950]
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("7_ir8iy")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Shrubs/Shrub1" unique_id=3834041]
+shape = SubResource("CircleShape2D_nr8wp")
+
+[node name="Shrub2" type="Area2D" parent="Shrubs" unique_id=1826512394]
+position = Vector2(800, -200)
+collision_layer = 16
+script = ExtResource("7_hqns4")
+
+[node name="Sprite2D" type="Sprite2D" parent="Shrubs/Shrub2" unique_id=552672578]
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("8_hqns4")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Shrubs/Shrub2" unique_id=1192619407]
+shape = SubResource("RectangleShape2D_d2bti")
+
+[node name="Shrub3" type="Area2D" parent="Shrubs" unique_id=1665008085]
+position = Vector2(900, 500)
+collision_layer = 16
+script = ExtResource("7_hqns4")
+
+[node name="Sprite2D" type="Sprite2D" parent="Shrubs/Shrub3" unique_id=1279138875]
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("9_x0ka3")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Shrubs/Shrub3" unique_id=1832193336]
+shape = SubResource("CircleShape2D_ta5nu")
+
+[node name="Shrub4" type="Area2D" parent="Shrubs" unique_id=815933964]
+position = Vector2(-900, -500)
+collision_layer = 16
+script = ExtResource("7_hqns4")
+
+[node name="Sprite2D" type="Sprite2D" parent="Shrubs/Shrub4" unique_id=349244396]
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("10_0h7mo")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Shrubs/Shrub4" unique_id=1466685570]
+shape = SubResource("CircleShape2D_flf07")
+
+[node name="HostIP" type="Label" parent="." unique_id=1203519342]
+offset_right = 155.0
+offset_bottom = 32.0
