@@ -23,6 +23,8 @@ namespace main
 
 		private Timer _resetTimer;
 
+		private Timer _increasedHealtTimer;
+
 
 		public Body(string texturePath, Color color, Node owner, Vector2 size, Vector2 position)
 		{
@@ -98,7 +100,23 @@ namespace main
 			_resetTimer.OneShot = true;
 			_resetTimer.Timeout += OnResetTimer;
 			AddChild(_resetTimer);
+
+			BodyDodge bodyAbility = new BodyDodge();
+			AddChild(bodyAbility);
+
+			_increasedHealtTimer = new Timer();
+			_increasedHealtTimer.WaitTime = 5.0;
+			_increasedHealtTimer.OneShot = true;
+			_increasedHealtTimer.Timeout += OnIncreasedHealthTimer;
+			AddChild(_increasedHealtTimer);
+
+			BodyHeal bodyHeal = new BodyHeal();
+			bodyHeal.HealBody += IncreaceHealth; 
+			AddChild(bodyHeal);
+
+
 		}
+
 
 		[Signal]
 		public delegate void BodyDestroyedEventHandler();
@@ -128,6 +146,22 @@ namespace main
 			_hp = 100;
 			_hpLabel.Text = "HP: 100";
 		}
+
+		private void OnIncreasedHealthTimer()
+		{
+			if (_hp > 100)
+			{
+				_hp = 100;
+				_hpLabel.Text = "HP: 100";
+			}
+		}
+
+		private void IncreaceHealth()
+		{
+			_hp = 150;
+			_hpLabel.Text = "HP: 150";
+			_increasedHealtTimer.Start();
+		}	
 
 	
 

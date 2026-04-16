@@ -1,139 +1,55 @@
 using Godot;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace main
 {
-
-
-	//Applies to the main node/scene
-	public partial class PlayerControl : Node
-	{
-
-        Color[] colors = new Color[19]
+    // Attached to node_2d.tscn root node
+    public partial class PlayerControl : Node
+    {
+        private readonly Color[] colors = new Color[19]
         {
-            Colors.Red,
-            Colors.Green,
-            Colors.Blue,
-            Colors.Yellow,
-            Colors.Cyan,
-            Colors.Magenta,
-            Colors.Orange,
-            Colors.Purple,
-            Colors.Pink,
-            Colors.Brown,
-            Colors.Gray,
-            Colors.Black,
-            Colors.White,
-            Colors.Gold,
-            Colors.Silver,
-            Colors.Maroon,
-            Colors.Olive,
-            Colors.Teal,
-            Colors.Lime
+            Colors.Red, Colors.Green, Colors.Blue, Colors.Yellow, Colors.Cyan,
+            Colors.Magenta, Colors.Orange, Colors.Purple, Colors.Pink, Colors.Brown,
+            Colors.Gray, Colors.Black, Colors.White, Colors.Gold, Colors.Silver,
+            Colors.Maroon, Colors.Olive, Colors.Teal, Colors.Lime
         };
-		private PlayersRegister _players = new PlayersRegister();
-        
-		public override void _Ready()
+
+        private PlayersManager _playersManager;
+
+        public override void _Ready()
         {
-            Sprite2D sprite = new Sprite2D();
-            sprite.Texture = GD.Load<Texture2D>("res://icon.svg");
-            sprite.Scale = new Vector2(10f, 10f);
-            AddChild(sprite);
+			Sprite2D sprite = new Sprite2D();
+			sprite.Texture = GD.Load<Texture2D>("res://icon.svg");
+			sprite.Scale = new Vector2(10f, 10f);
+			AddChild(sprite);
+            _playersManager = GetNode<PlayersManager>("/root/PlayersManager");
 
-
-
-            if (GameState.Role == GameState.NetworkRole.Server)
-                StartServer();
-            else
-                StartClient();
-
-            // Label HostIP = GetNode<Label>("HostIP");
-            // HostIP.Text = GameState.HostIP;
-
-
-
-        }
-
-	 	private void StartServer()
-        {
-            GD.Print("Starting SERVER...");
-            var peer = new ENetMultiplayerPeer();
-            var err = peer.CreateServer(GameState.Port, maxClients: 4);
-
-            if (err != Error.Ok)
+            // Spawn bodies for all players already registered in PlayersManager
+            int index = 0;
+            foreach (var player in _playersManager.Players.Players.Values)
             {
-                GD.PrintErr("Failed to start server: " + err);
-                return;
+                SpawnBody(player.Id, index);
+                index++;
             }
 
-            Multiplayer.MultiplayerPeer = peer;
-            Multiplayer.PeerConnected += OnPeerConnected;
-            Multiplayer.PeerDisconnected += OnPeerDisconnected;
-
-            SpawnPlayer(1);
-            GD.Print("Server started on port " + GameState.Port);
+            // Listen for new players joining mid-game (shouldn't happen but safe)
+            _playersManager.Players.OnPlayersChanged += OnPlayersChanged;
         }
 
-		 private void StartClient()
+        public override void _ExitTree()
         {
-            GD.Print("Starting CLIENT, connecting to: " + GameState.HostIP);
-            var peer = new ENetMultiplayerPeer();
-            var err = peer.CreateClient(GameState.HostIP, GameState.Port);
-
-            if (err != Error.Ok)
-            {
-                GD.PrintErr("Client failed: " + err);
-                return;
-            }
-
-            Multiplayer.MultiplayerPeer = peer;
-            Multiplayer.ConnectedToServer += OnConnectedToServer;
-            Multiplayer.ConnectionFailed += () => GD.PrintErr("Connection failed!");
+            if (_playersManager != null)
+                _playersManager.Players.OnPlayersChanged -= OnPlayersChanged;
         }
 
-// ── EVENTS ────────────────────────────────────────────
-        private void OnConnectedToServer()
+        private void OnPlayersChanged()
         {
-            GD.Print("Connected! My ID = " + Multiplayer.GetUniqueId());
-            // Ask server to spawn us and notify others
-            RpcId(1, nameof(ServerRequestSpawn));
+            // Could handle late-join body spawning here if needed
         }
 
-        private void OnPeerConnected(long id)
+        private void SpawnBody(long peerId, int spawnIndex)
         {
-            GD.Print("Peer connected: " + id);
-            // Tell the newly joined peer about all existing players
-            foreach (var existingId in _players.Players.Keys)
-                RpcId(id, nameof(SpawnPlayerOnClient), existingId);
-        }
-
-        private void OnPeerDisconnected(long id)
-        {
-           
-            _players.RemovePlayer(id);
-        }
-		 // Client → Server: "spawn me please"
-        [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false)]
-        private void ServerRequestSpawn()
-        {
-            long newId = Multiplayer.GetRemoteSenderId();
-            SpawnPlayer(newId);                          // Spawn on server
-            Rpc(nameof(SpawnPlayerOnClient), newId);     // Tell all clients
-        }
-
-        // Runs on all clients to create a remote player
-        [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false)]
-        private void SpawnPlayerOnClient(long peerId)
-        {
-            SpawnPlayer(peerId);
-        }
-
-        private void SpawnPlayer(long peerId)
-        {
-            // Offset spawn positions so players don't overlap
-            float xOffset = _players.Count() * 150f;
+            float xOffset = spawnIndex * 150f;
             var body = new Body(
                 "res://body.svg",
                 colors[peerId % colors.Length],
@@ -142,46 +58,31 @@ namespace main
                 new Vector2(300f + xOffset, 400f)
             );
             body.Name = $"Player_{peerId}";
-            body.SetMultiplayerAuthority((int)peerId); // Critical: assigns ownership
-
-            body.BodyDestroyed += () => OnBodyDestroyed(peerId, body);
-
-            Player player = new Player(peerId, body, $"Player{peerId}");
-            _players.AddPlayer(player);
+            body.SetMultiplayerAuthority((int)peerId);
+            body.BodyDestroyed += () => OnBodyDestroyed(peerId, body, spawnIndex);
             AddChild(body);
 
-            GD.Print($"Spawned player {peerId} (I am {Multiplayer.GetUniqueId()})");
-        }
-        
-        private void OnBodyDestroyed(long peerId, Body body)
-        {
-            _players.RemovePlayer(peerId);
-            body.QueueFree();
-            // SpawnPlayer(peerId);
+            GD.Print($"Spawned body for player {peerId} (I am {Multiplayer.GetUniqueId()})");
         }
 
-		//Constantly checks the state of dummy, if there is no dummy in chiuld nodes allows player to spawn a new one
+        private void OnBodyDestroyed(long peerId, Body body, int spawnIndex)
+        {
+            body.QueueFree();
+            SpawnBody(peerId, spawnIndex); // respawn in same slot
+        }
+
         public override void _Process(double delta)
         {
+            // Ctrl+C — quit game and return to menu
             if (Input.IsActionJustPressed("quit"))
             {
-                // Disconnect from multiplayer cleanly
-                if (Multiplayer.MultiplayerPeer != null)
-                {
-                    Multiplayer.MultiplayerPeer.Close();
-                    Multiplayer.MultiplayerPeer = null;
-                }
-
-                // Reset game state so menu starts fresh
-                GameState.Role = GameState.NetworkRole.None;
-                GameState.HostIP = "127.0.0.1";
-
-                GetTree().ChangeSceneToFile("res://main_menu.tscn"); // your menu scene name
+                _playersManager.Players.OnPlayersChanged -= OnPlayersChanged;
+                _playersManager.PlayerQuit();
+                return;
             }
 
             if (Input.IsActionJustPressed("ui_accept"))
             {
-                // Check if any Dummy exists among children
                 bool dummyExists = false;
                 foreach (Node child in GetChildren())
                 {
@@ -199,6 +100,5 @@ namespace main
                 }
             }
         }
-
-	}
+    }
 }

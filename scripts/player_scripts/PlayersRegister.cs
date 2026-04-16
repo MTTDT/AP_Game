@@ -1,16 +1,19 @@
 using System.Collections.Generic;
+using System;
 
 namespace main
 {
     public class PlayersRegister
     {
-        private Dictionary<long, Player> _players = new Dictionary<long, Player>();
-
+        public event Action OnPlayersChanged;
+        private readonly Dictionary<long, Player> _players = new();
         public IReadOnlyDictionary<long, Player> Players => _players;
 
         public void AddPlayer(Player player)
         {
+            
             _players[player.Id] = player; 
+            OnPlayersChanged?.Invoke();
         }
 
         public int Count() => _players.Count;
@@ -26,8 +29,7 @@ namespace main
 
         public void RemovePlayer(long index)
         {
-            if (_players.ContainsKey(index))
-                _players.Remove(index);
+            if (_players.Remove(index)) OnPlayersChanged?.Invoke();
         }
 
     }
