@@ -5,6 +5,8 @@ namespace main
 	//Creates body as Character2D
 	public partial class Body : CharacterBody2D
 	{
+		[Signal]
+        public delegate void BodyDestroyedEventHandler();
 		private string TexturePath { get; set; }
 		private Color Color { get; set; }
 		private Node Owner { get; set; }
