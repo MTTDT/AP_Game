@@ -3,132 +3,215 @@ using System;
 
 namespace main
 {
-	public partial class Body : CharacterBody2D
-	{
-		[Signal]
-		public delegate void BodyDestroyedEventHandler();
+    public partial class Body : CharacterBody2D
+    {
+        [Signal]
+        public delegate void BodyDestroyedEventHandler();
 
-		private string _texturePath;
-		private Color _color;
-		private Vector2 _size;
-		private Vector2 _startPos;
+        private string _texturePath;
+        private Color _color;
+        private Vector2 _size;
+        private Vector2 _startPos;
 
-		private float _speed = 350f;
-		private float _rotationSpeed = 3.5f;
+        [Export]
+        public float Speed { get; set; } = 350f;
 
-		private Gun _gun;
-		private Camera2D _camera;
-		private Label _healthLabel;
+        [Export]
+        public float RotationSpeed { get; set; } = 3.5f;
 
-		public int Health { get; private set; } = 100;
+        private Gun _gun;
+        private Camera2D _camera;
+        private Label _hpLabel;
+        public int Health { get; private set; } = 100;
 
-		private Rect2 MapBounds;
+        private Rect2 _mapBounds;
 
-		public Body() {}
+        private Timer _resetTimer;
+        private Timer _increasedHealthTimer;
 
-		public Body(string texturePath, Color color, Vector2 size, Vector2 startPos)
-		{
-			_texturePath = texturePath;
-			_color = color;
-			_size = size;
-			_startPos = startPos;
-		}
+        // Parameterless constructor required for Godot multiplayer instantiation
+        public Body() { }
 
-		public override void _Ready()
-		{
-			SetDeferred("collision_layer", 1);
-			SetDeferred("collision_mask", 2 | 3 | 5);
+        public Body(string texturePath, Color color, Vector2 size, Vector2 startPos)
+        {
+            _texturePath = texturePath;
+            _color = color;
+            _size = size;
+            _startPos = startPos;
+        }
 
-			Position = _startPos;
+        public override void _Ready()
+        {
+            Position = _startPos;
 
-			// SPRITE
-			Sprite2D sprite = new Sprite2D();
-			sprite.Texture = GD.Load<Texture2D>(_texturePath);
-			sprite.Modulate = _color;
-			sprite.Centered = true;
-			AddChild(sprite);
+            SetDeferred("collision_layer", 1);
+            SetDeferred("collision_mask", 2 | 3 | 5);
 
-			// COLLISION
-			CollisionShape2D shape = new CollisionShape2D();
-			RectangleShape2D rect = new RectangleShape2D();
-			rect.Size = _size;
-			shape.Shape = rect;
-			AddChild(shape);
+            // SPRITE
+            Sprite2D sprite = new Sprite2D();
+            sprite.Texture = GD.Load<Texture2D>(_texturePath);
+            sprite.Modulate = _color;
+            sprite.Centered = true;
+            AddChild(sprite);
 
-			// MAP BOUNDS
-			Sprite2D map = GetTree().CurrentScene.GetNode<Sprite2D>("Sprite2D");
+            // BODY COLLISION SHAPE
+            CollisionShape2D shape = new CollisionShape2D();
+            RectangleShape2D rect = new RectangleShape2D();
+            rect.Size = _size;
+            shape.Shape = rect;
+            AddChild(shape);
 
-			Vector2 mapPos = map.GlobalPosition;
-			Vector2 mapSize = map.Texture.GetSize() * map.Scale;
+            // MAP BOUNDS
+            Sprite2D map = GetTree().CurrentScene.GetNode<Sprite2D>("Sprite2D");
+            Vector2 mapPos = map.GlobalPosition;
+            Vector2 mapSize = map.Texture.GetSize() * map.Scale;
+            _mapBounds = new Rect2(mapPos - mapSize / 2f, mapSize);
 
-			MapBounds = new Rect2(mapPos - mapSize / 2f, mapSize);
+            // CAMERA
+            _camera = new Camera2D();
+            _camera.Enabled = IsMultiplayerAuthority();
+            _camera.LimitLeft   = (int)_mapBounds.Position.X;
+            _camera.LimitTop    = (int)_mapBounds.Position.Y;
+            _camera.LimitRight  = (int)(_mapBounds.Position.X + _mapBounds.Size.X);
+            _camera.LimitBottom = (int)(_mapBounds.Position.Y + _mapBounds.Size.Y);
+            AddChild(_camera);
 
-			// CAMERA
-			_camera = new Camera2D();
-			_camera.Enabled = IsMultiplayerAuthority();
+            // GUN
+            _gun = new Gun("res://gun.svg", _color);
+            _gun.Name = "Gun";
+            _gun.SetMultiplayerAuthority(GetMultiplayerAuthority());
+            AddChild(_gun);
 
-			_camera.LimitLeft = (int)MapBounds.Position.X;
-			_camera.LimitTop = (int)MapBounds.Position.Y;
-			_camera.LimitRight = (int)(MapBounds.Position.X + MapBounds.Size.X);
-			_camera.LimitBottom = (int)(MapBounds.Position.Y + MapBounds.Size.Y);
+            // HP LABEL
+            _hpLabel = new Label();
+            _hpLabel.Text = $"HP: {Health}";
+            _hpLabel.Position = new Vector2(-20f, -90f);
+            _hpLabel.Modulate = Colors.White;
+            AddChild(_hpLabel);
 
-			AddChild(_camera);
+            // BULLET HITBOX
+            Area2D hitbox = new Area2D();
+            hitbox.Name = "Hitbox";
+            hitbox.CollisionLayer = 2;
+            hitbox.CollisionMask = 4;
 
-			// GUN
-			_gun = new Gun("res://gun.svg", _color);
-			AddChild(_gun);
+            CollisionShape2D hitShape = new CollisionShape2D();
+            RectangleShape2D hitRect = new RectangleShape2D();
+            hitRect.Size = new Vector2(90f, 70f);
+            hitShape.Shape = hitRect;
+            hitbox.AddChild(hitShape);
 
-			// HEALTH LABEL
-			_healthLabel = new Label();
-			_healthLabel.Text = Health.ToString();
-			_healthLabel.Position = new Vector2(-20, -50);
-			_healthLabel.Modulate = Colors.White;
-			AddChild(_healthLabel);
-		}
+            hitbox.BodyEntered += OnBulletHit;
+            AddChild(hitbox);
 
-		public override void _PhysicsProcess(double delta)
-		{
-			if (!IsMultiplayerAuthority())
-				return;
+            // RESET TIMER (auto-heal to 100 after 5s)
+            _resetTimer = new Timer();
+            _resetTimer.WaitTime = 5.0;
+            _resetTimer.OneShot = true;
+            _resetTimer.Timeout += OnResetTimer;
+            AddChild(_resetTimer);
 
-			Vector2 input = Vector2.Zero;
+            // INCREASED HEALTH TIMER (caps boosted HP back to 100 after 5s)
+            _increasedHealthTimer = new Timer();
+            _increasedHealthTimer.WaitTime = 5.0;
+            _increasedHealthTimer.OneShot = true;
+            _increasedHealthTimer.Timeout += OnIncreasedHealthTimer;
+            AddChild(_increasedHealthTimer);
 
-			if (Input.IsActionPressed("ui_up"))
-				input.Y -= 1;
-			if (Input.IsActionPressed("ui_down"))
-				input.Y += 1;
+            // ABILITIES
+            BodyDodge bodyDodge = new BodyDodge();
+            AddChild(bodyDodge);
 
-			if (Input.IsActionPressed("ui_left"))
-				Rotation -= _rotationSpeed * (float)delta;
-			if (Input.IsActionPressed("ui_right"))
-				Rotation += _rotationSpeed * (float)delta;
+            BodyHeal bodyHeal = new BodyHeal();
+            bodyHeal.HealBody += IncreaseHealth;
+            AddChild(bodyHeal);
+        }
 
-			Vector2 forward = -Transform.Y;
-			Velocity = forward * (-input.Y) * _speed;
+        // ── Input & Physics ────────────────────────────────────────────────────
 
-			MoveAndSlide();
+        public override void _PhysicsProcess(double delta)
+        {
+            if (!IsMultiplayerAuthority()) return;
 
-			// LIMITS
-			GlobalPosition = new Vector2(
-				Mathf.Clamp(GlobalPosition.X, MapBounds.Position.X, MapBounds.Position.X + MapBounds.Size.X),
-				Mathf.Clamp(GlobalPosition.Y, MapBounds.Position.Y, MapBounds.Position.Y + MapBounds.Size.Y)
-			);
+            // Rotation
+            float rotDir = Input.GetAxis("a", "d");
+            Rotation += rotDir * RotationSpeed * (float)delta;
 
-			// DEBUG
-			if (Input.IsActionJustPressed("ui_accept"))
-				GD.Print("PLAYER MASK RUNTIME: ", CollisionMask);
-		}
+            // Movement (forward/back along local -Y axis)
+            float moveDir = Input.GetAxis("w", "s");
+            Velocity = -Transform.Y * moveDir * Speed;
 
-		public void TakeDamage(int amount)
-		{
-			Health -= amount;
-			_healthLabel.Text = Health.ToString();
+            MoveAndSlide();
 
-			if (Health <= 0)
-			{
-				EmitSignal(nameof(BodyDestroyed));
-				QueueFree();
-			}
-		}
-	}
+            // Clamp to map bounds
+            GlobalPosition = new Vector2(
+                Mathf.Clamp(GlobalPosition.X, _mapBounds.Position.X, _mapBounds.Position.X + _mapBounds.Size.X),
+                Mathf.Clamp(GlobalPosition.Y, _mapBounds.Position.Y, _mapBounds.Position.Y + _mapBounds.Size.Y)
+            );
+
+            // Keep HP label upright and above the tank
+            Vector2 offset = new Vector2(-20f, -90f);
+            _hpLabel.Position = offset.Rotated(-Rotation);
+            _hpLabel.Rotation = -Rotation;
+
+            // Sync to all other peers
+            Rpc(nameof(SyncTransform), Position, Rotation, _hpLabel.Position, _hpLabel.Rotation);
+        }
+
+        [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
+             TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+        private void SyncTransform(Vector2 pos, float rot, Vector2 labelPos, float labelRot)
+        {
+            Position        = pos;
+            Rotation        = rot;
+            _hpLabel.Position = labelPos;
+            _hpLabel.Rotation = labelRot;
+        }
+
+        // ── Damage & Health ────────────────────────────────────────────────────
+
+        private void OnBulletHit(Node body)
+        {
+            if (body is not Bullet) return;
+
+            body.QueueFree();
+            TakeDamage(10);
+            _resetTimer.Start();
+        }
+
+        public void TakeDamage(int amount)
+        {
+            Health = Mathf.Max(0, Health - amount);
+            _hpLabel.Text = $"HP: {Health}";
+
+            if (Health <= 0)
+            {
+                GD.Print("Dead!");
+                EmitSignal(SignalName.BodyDestroyed);
+                QueueFree();
+            }
+        }
+
+        private void OnResetTimer()
+        {
+            Health = 100;
+            _hpLabel.Text = "HP: 100";
+        }
+
+        private void OnIncreasedHealthTimer()
+        {
+            if (Health > 100)
+            {
+                Health = 100;
+                _hpLabel.Text = "HP: 100";
+            }
+        }
+
+        private void IncreaseHealth()
+        {
+            Health = 150;
+            _hpLabel.Text = "HP: 150";
+            _increasedHealthTimer.Start();
+        }
+    }
 }
