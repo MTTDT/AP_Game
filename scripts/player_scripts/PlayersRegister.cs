@@ -6,31 +6,23 @@ namespace main
     public class PlayersRegister
     {
         public event Action OnPlayersChanged;
+
         private readonly Dictionary<long, Player> _players = new();
         public IReadOnlyDictionary<long, Player> Players => _players;
 
         public void AddPlayer(Player player)
         {
-            
-            _players[player.Id] = player; 
+            _players[player.Id] = player;
             OnPlayersChanged?.Invoke();
         }
 
         public int Count() => _players.Count;
-
-        private int FindIndex()
-        {
-            int index = 0;
-            while (_players.ContainsKey(index))
-                index++;
-
-            return index;
-        }
 
         public void RemovePlayer(long index)
         {
             if (_players.Remove(index)) OnPlayersChanged?.Invoke();
         }
 
+        public void NotifyChanged() => OnPlayersChanged?.Invoke();
     }
 }

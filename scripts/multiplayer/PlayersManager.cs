@@ -41,15 +41,68 @@ namespace main
             Multiplayer.ConnectionFailed += () => GD.PrintErr("Connection failed!");
         }
 
+        /// <summary>
+        /// Called by the local player to select their body type.
+        /// Sends the choice to the server which then broadcasts it to all peers.
+        /// </summary>
+        public void SelectBodyType(BodyType type)
+        {
+            long myId = Multiplayer.GetUniqueId();
+
+            if (Multiplayer.IsServer())
+            {
+                // Server sets directly and broadcasts
+                ServerApplyBodyType(myId, (int)type);
+                Rpc(nameof(ReceiveBodyTypeChanged), myId, (int)type);
+            }
+            else
+            {
+                // Client tells server
+                RpcId(1, nameof(ServerRequestBodyType), (int)type);
+            }
+        }
+
+        [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false)]
+        private void ServerRequestBodyType(int bodyTypeInt)
+        {
+            if (!Multiplayer.IsServer()) return;
+            long senderId = Multiplayer.GetRemoteSenderId();
+            ServerApplyBodyType(senderId, bodyTypeInt);
+            // Broadcast the change to all peers including sender
+            Rpc(nameof(ReceiveBodyTypeChanged), senderId, bodyTypeInt);
+        }
+
+        private void ServerApplyBodyType(long peerId, int bodyTypeInt)
+        {
+            if (Players.Players.TryGetValue(peerId, out var player))
+            {
+                player.BodyType = (BodyType)bodyTypeInt;
+                GD.Print($"Player {peerId} selected body: {player.BodyType}");
+            }
+        }
+
+        /// <summary>
+        /// Received on all peers — updates the register so everyone knows
+        /// what body type each player picked before the game starts.
+        /// </summary>
+        [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
+        private void ReceiveBodyTypeChanged(long peerId, int bodyTypeInt)
+        {
+            if (Players.Players.TryGetValue(peerId, out var player))
+            {
+                player.BodyType = (BodyType)bodyTypeInt;
+                Players.NotifyChanged();
+            }
+        }
+
         // Called by PlayersPool's Start Game button (server only)
         public void StartGame()
         {
             if (!Multiplayer.IsServer()) return;
             GameState.GameActive = true;
-            Rpc(nameof(ReceiveStartGame)); // tell all clients including self
+            Rpc(nameof(ReceiveStartGame));
         }
 
-        // Called on every peer (server via CallLocal equivalent using Rpc, clients via RPC)
         [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
         private void ReceiveStartGame()
         {
@@ -58,7 +111,16 @@ namespace main
             GetTree().ChangeSceneToFile("res://node_2d.tscn");
         }
 
-        // Called by PlayerControl when a player quits (Ctrl+C)
+        /// <summary>
+        /// Called when the local player returns to the lobby from the game scene
+        /// (via death screen or win screen). Only changes scene for the local peer.
+        /// </summary>
+        public void ReturnToPool()
+        {
+            GameState.GameActive = false;
+            GetTree().ChangeSceneToFile("res://players_pool.tscn");
+        }
+
         public void PlayerQuit()
         {
             long myId = Multiplayer.GetUniqueId();
@@ -66,17 +128,14 @@ namespace main
 
             if (Multiplayer.IsServer())
             {
-                // Server quitting: just remove self and check if game should end
                 Players.RemovePlayer(myId);
                 CheckGameEnd();
             }
             else
             {
-                // Client: tell server we're leaving
                 RpcId(1, nameof(ServerNotifyQuit));
             }
 
-            // Clean up local multiplayer state
             Multiplayer.MultiplayerPeer?.Close();
             Multiplayer.MultiplayerPeer = null;
             GameState.Role = GameState.NetworkRole.None;
@@ -115,9 +174,6 @@ namespace main
         private void OnConnectedToServer()
         {
             GD.Print("Connected! My ID = " + Multiplayer.GetUniqueId());
-
-            // Block joining if game is already active
-            // We ask the server first via RPC
             RpcId(1, nameof(ServerRequestSpawn));
         }
 
@@ -127,8 +183,10 @@ namespace main
             GD.Print("Peer connected: " + id);
             foreach (var existingId in Players.Players.Keys)
             {
-                GD.Print($"Sending existing player {existingId} to new peer {id}");
                 RpcId(id, nameof(SpawnPlayerOnClient), existingId);
+                // Also sync existing body type choices to the new peer
+                if (Players.Players.TryGetValue(existingId, out var p))
+                    RpcId(id, nameof(ReceiveBodyTypeChanged), existingId, (int)p.BodyType);
             }
         }
 
@@ -140,7 +198,7 @@ namespace main
 
         private void AddPlayer(long peerId)
         {
-            var player = new Player(peerId, null, $"Player{peerId}");
+            var player = new Player(peerId, $"Player{peerId}");
             Players.AddPlayer(player);
         }
 
@@ -168,7 +226,6 @@ namespace main
             Multiplayer.MultiplayerPeer?.Close();
             Multiplayer.MultiplayerPeer = null;
             GameState.Role = GameState.NetworkRole.None;
-            // Optionally show a message in the menu — for now just go back
             GetTree().ChangeSceneToFile("res://main_menu.tscn");
         }
 

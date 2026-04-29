@@ -1,0 +1,23 @@
+<svg width="74" height="74" xmlns="http://www.w3.org/2000/svg">
+  <!-- Left track -->
+  <rect x="2" y="10" width="12" height="54" rx="4" ry="4" fill="white" opacity="0.75"/>
+  <rect x="2" y="10" width="5" height="54" rx="3" ry="3" fill="white" opacity="0.2"/>
+
+  <!-- Right track -->
+  <rect x="60" y="10" width="12" height="54" rx="4" ry="4" fill="white" opacity="0.75"/>
+  <rect x="65" y="10" width="7" height="54" rx="3" ry="3" fill="white" opacity="0.2"/>
+
+  <!-- Main body -->
+  <rect x="14" y="14" width="46" height="46" rx="6" ry="6" fill="white" opacity="1.0"/>
+  <!-- Top highlight -->
+  <rect x="15" y="15" width="44" height="14" rx="5" ry="5" fill="white" opacity="0.3"/>
+  <!-- Bottom shadow -->
+  <rect x="15" y="48" width="44" height="11" rx="5" ry="5" fill="white" opacity="0.15"/>
+
+  <!-- Turret circle -->
+  <ellipse cx="37" cy="37" rx="12" ry="12" fill="white" opacity="0.9"/>
+  <!-- Turret top-left highlight -->
+  <ellipse cx="34" cy="34" rx="5" ry="5" fill="white" opacity="0.35"/>
+  <!-- Turret bottom-right shadow -->
+  <ellipse cx="40" cy="41" rx="5" ry="4" fill="white" opacity="0.15"/>
+</svg>

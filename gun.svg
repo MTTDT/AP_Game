@@ -1,6 +1,10 @@
-<svg width="10" height="60" xmlns="http://www.w3.org/2000/svg">
-  <!-- Base (at top — connects to turret) -->
-  <rect x="0" y="0" width="10" height="10" rx="2" ry="2" fill="#2d4a2f"/>
-  <!-- Barrel (points down from base) -->
-  <rect x="3" y="10" width="4" height="50" rx="2" ry="2" fill="#4a7c4e" stroke="#2d4a2f" stroke-width="1"/>
+<svg width="12" height="52" xmlns="http://www.w3.org/2000/svg">
+  <!-- Base / turret mount -->
+  <rect x="1" y="0" width="10" height="11" rx="2" ry="2" fill="white" opacity="0.9"/>
+  <!-- Barrel -->
+  <rect x="3.5" y="9" width="5" height="42" rx="2" ry="2" fill="white" opacity="1.0"/>
+  <!-- Barrel tip highlight -->
+  <rect x="3.5" y="9" width="2" height="42" rx="2" ry="2" fill="white" opacity="0.4"/>
+  <!-- Base shadow underline -->
+  <rect x="1" y="8" width="10" height="3" rx="1" ry="1" fill="white" opacity="0.3"/>
 </svg>
