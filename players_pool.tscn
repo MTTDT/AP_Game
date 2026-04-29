@@ -1,20 +1,117 @@
 [gd_scene format=3 uid="uid://b6dv35k1bwrd2"]
 
 [ext_resource type="Script" uid="uid://cpnn1cyn42knk" path="res://scripts/players_pool/PlayersPool.cs" id="1_eq24v"]
+[ext_resource type="Texture2D" uid="uid://umukqm4h4ths" path="res://Sky.png" id="2_034y3"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_034y3"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.30980393, 0.6392157, 0.9019608, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h74lm"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.22745098, 0.49803922, 0.7294118, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xou3g"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.41960785, 0.72156864, 0.9411765, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cmyf5"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.64705884, 0.78039217, 0.8666667, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v4gsf"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 1, 1, 1)
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+corner_detail = 5
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
 
 [node name="Node" type="Node" unique_id=690618780]
 script = ExtResource("1_eq24v")
 
+[node name="TextureRect" type="TextureRect" parent="." unique_id=586813001]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_034y3")
+expand_mode = 3
+
 [node name="ItemList" type="ItemList" parent="." unique_id=2025354817]
-offset_left = 326.0
-offset_top = 109.0
-offset_right = 713.0
-offset_bottom = 415.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -193.5
+offset_top = -153.0
+offset_right = 193.5
+offset_bottom = 153.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="Button" type="Button" parent="." unique_id=1110404581]
-offset_left = 427.0
-offset_top = 482.0
-offset_right = 586.0
-offset_bottom = 513.0
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -79.5
+offset_top = -31.0
+offset_right = 79.5
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_034y3")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_h74lm")
+theme_override_styles/hover = SubResource("StyleBoxFlat_xou3g")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_cmyf5")
+theme_override_styles/focus = SubResource("StyleBoxFlat_v4gsf")
 text = "Start
 "
