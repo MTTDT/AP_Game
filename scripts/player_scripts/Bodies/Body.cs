@@ -17,7 +17,7 @@ namespace main
         private Vector2 Size { get; set; }
         private Vector2 _Position { get; set; }
 
-        [Export] public int Speed { get; set; } = 600;
+        [Export] public int Speed { get; set; } = 300;
         [Export] public float RotationSpeed { get; set; } = 5f;
 
         private float _rotationDirection;

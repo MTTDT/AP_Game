@@ -15,6 +15,7 @@ namespace main
         };
 
         private PlayersManager _playersManager;
+        private CanvasLayer _overlayLayer;
         private Control _overlay;
 
         public override void _Ready()
@@ -30,8 +31,11 @@ namespace main
 
             _playersManager.Players.OnPlayersChanged += OnPlayersChanged;
 
+            _overlayLayer = new CanvasLayer();
+            _overlayLayer.Layer = 10; // render above everything
             _overlay = BuildOverlay();
-            AddChild(_overlay);
+            _overlayLayer.AddChild(_overlay);
+            AddChild(_overlayLayer);
         }
 
         public override void _ExitTree()

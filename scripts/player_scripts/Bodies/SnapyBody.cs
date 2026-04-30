@@ -17,8 +17,7 @@ namespace main
         public SnapyBody(Color color, Node owner, Vector2 position)
             : base("res://body_snappy.svg", color, owner, new Vector2(45, 45), position)
         {
-            Speed         = 900;
-            RotationSpeed = 8f;
+            Speed         = 500;
         }
 
         public override void _Ready()

@@ -15,7 +15,7 @@ namespace main
         public BulkyBody(Color color, Node owner, Vector2 position)
             : base("res://body_bulky.svg", color, owner, new Vector2(80, 80), position)
         {
-            Speed         = 350;
+            Speed         = 250;
             RotationSpeed = 2.5f;
         }
 
