@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://chgb7x0rd7l16"]
+
+[ext_resource type="Script" uid="uid://jn2en6uod47f" path="res://WinScreen.cs" id="1_l2arl"]
+
+[node name="WinScreen" type="Control" unique_id=899570583]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_l2arl")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=989185365]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.627451)
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=12609248]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=677859341]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer" unique_id=2049092834]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 48
+text = "You win!"
+
+[node name="Button" type="Button" parent="CenterContainer/VBoxContainer" unique_id=2076582538]
+custom_minimum_size = Vector2(220, 50)
+layout_mode = 2
+text = "Return to Lobby"
+
+[connection signal="pressed" from="CenterContainer/VBoxContainer/Button" to="." method="_on_button_pressed"]
