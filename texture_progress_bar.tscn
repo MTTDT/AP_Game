@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://dhpa5egy5hx8o"]
+
+[ext_resource type="Texture2D" uid="uid://7ncvcxvy04g5" path="res://bullet.svg" id="1_fcjux"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_umejy"]
+bg_color = Color(0.31744808, 0.5853429, 0.62999207, 0.6)
+
+[sub_resource type="Gradient" id="Gradient_clyxh"]
+metadata/_snap_enabled = true
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_82ka4"]
+gradient = SubResource("Gradient_clyxh")
+width = 128
+height = 128
+
+[node name="TextureProgressBar" type="Node" unique_id=668139554]
+
+[node name="CooldownSlot" type="PanelContainer" parent="." unique_id=56448101]
+offset_right = 128.0
+offset_bottom = 128.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_umejy")
+
+[node name="CoolDownAnchor" type="Control" parent="CooldownSlot" unique_id=386089457]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CooldownSlot/CoolDownAnchor" unique_id=1547703312]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="BulletIcon" type="TextureRect" parent="CooldownSlot/CoolDownAnchor/MarginContainer" unique_id=1172501636]
+layout_mode = 2
+texture = ExtResource("1_fcjux")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CooldownProgress" type="TextureProgressBar" parent="CooldownSlot" unique_id=94578950]
+layout_mode = 2
+fill_mode = 4
+texture_progress = SubResource("GradientTexture2D_82ka4")

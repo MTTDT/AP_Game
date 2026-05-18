@@ -41,6 +41,8 @@ namespace main
 			Multiplayer.ConnectionFailed += () => GD.PrintErr("Connection failed!");
 		}
 
+		// ── Body type selection ──────────────────────────────────────────────
+
 		public void SelectBodyType(BodyType type)
 		{
 			long myId = Multiplayer.GetUniqueId();
@@ -84,6 +86,53 @@ namespace main
 			}
 		}
 
+		// ── Gun type selection ───────────────────────────────────────────────
+
+		public void SelectGunType(GunType type)
+		{
+			long myId = Multiplayer.GetUniqueId();
+
+			if (Multiplayer.IsServer())
+			{
+				ServerApplyGunType(myId, (int)type);
+				Rpc(nameof(ReceiveGunTypeChanged), myId, (int)type);
+			}
+			else
+			{
+				RpcId(1, nameof(ServerRequestGunType), (int)type);
+			}
+		}
+
+		[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false)]
+		private void ServerRequestGunType(int gunTypeInt)
+		{
+			if (!Multiplayer.IsServer()) return;
+			long senderId = Multiplayer.GetRemoteSenderId();
+			ServerApplyGunType(senderId, gunTypeInt);
+			Rpc(nameof(ReceiveGunTypeChanged), senderId, gunTypeInt);
+		}
+
+		private void ServerApplyGunType(long peerId, int gunTypeInt)
+		{
+			if (Players.Players.TryGetValue(peerId, out var player))
+			{
+				player.GunType = (GunType)gunTypeInt;
+				GD.Print($"Player {peerId} selected gun: {player.GunType}");
+			}
+		}
+
+		[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
+		private void ReceiveGunTypeChanged(long peerId, int gunTypeInt)
+		{
+			if (Players.Players.TryGetValue(peerId, out var player))
+			{
+				player.GunType = (GunType)gunTypeInt;
+				Players.NotifyChanged();
+			}
+		}
+
+		// ── Game flow ────────────────────────────────────────────────────────
+
 		public void StartGame()
 		{
 			if (!Multiplayer.IsServer()) return;
@@ -99,10 +148,42 @@ namespace main
 			GetTree().ChangeSceneToFile("res://node_2d.tscn");
 		}
 
+		public void NotifyOutcome(long winnerId, long loserId)
+		{
+			if (!Multiplayer.IsServer()) return;
+
+			if (loserId == Multiplayer.GetUniqueId())
+				RpcReceiveGameOver();
+			else
+				RpcId(loserId, nameof(RpcReceiveGameOver));
+
+			if (winnerId < 0) return;
+
+			if (winnerId == Multiplayer.GetUniqueId())
+				RpcReceiveWinScreen();
+			else
+				RpcId(winnerId, nameof(RpcReceiveWinScreen));
+		}
+
+		[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false)]
+		private void RpcReceiveGameOver()
+		{
+			GD.Print("Showing GAME OVER on peer " + Multiplayer.GetUniqueId());
+			GetTree().ChangeSceneToFile("res://game_over.tscn");
+		}
+
+		[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false)]
+		private void RpcReceiveWinScreen()
+		{
+			GD.Print("Showing WIN SCREEN on peer " + Multiplayer.GetUniqueId());
+			GetTree().ChangeSceneToFile("res://win_screen.tscn");
+		}
+
 		public void ReturnToPool()
 		{
+			if (!Multiplayer.IsServer()) return;
 			GameState.GameActive = false;
-			GetTree().ChangeSceneToFile("res://players_pool.tscn");
+			Rpc(nameof(ReceiveReturnToPool));
 		}
 
 		public void PlayerQuit()
@@ -142,18 +223,20 @@ namespace main
 			if (!Multiplayer.IsServer()) return;
 
 			if (Players.Count() <= 1 && GameState.GameActive)
-			{
-				// ⭐ YA NO RESETEAMOS LA PARTIDA AQUÍ ⭐
 				GD.Print("Only one player left — win/lose handled by game scene.");
-			}
 		}
 
 		[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
 		private void ReceiveReturnToPool()
 		{
 			GameState.GameActive = false;
+			Players.Clear();
+			if (Multiplayer.IsServer())
+				AddPlayer(1);
 			GetTree().ChangeSceneToFile("res://players_pool.tscn");
 		}
+
+		// ── Connection callbacks ─────────────────────────────────────────────
 
 		private void OnConnectedToServer()
 		{
@@ -170,7 +253,10 @@ namespace main
 				RpcId(id, nameof(SpawnPlayerOnClient), existingId);
 
 				if (Players.Players.TryGetValue(existingId, out var p))
+				{
 					RpcId(id, nameof(ReceiveBodyTypeChanged), existingId, (int)p.BodyType);
+					RpcId(id, nameof(ReceiveGunTypeChanged),  existingId, (int)p.GunType);
+				}
 			}
 		}
 

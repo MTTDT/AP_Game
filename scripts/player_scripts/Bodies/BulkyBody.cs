@@ -4,16 +4,16 @@ namespace main
 {
     /// <summary>
     /// Bulky Body — slow and tanky.
-    /// Stats: Speed = 350, RotationSpeed = 2.5, starting HP = 150.
-    /// Unique ability: Shield (E) — 3 s invincibility (hitbox disabled).
-    /// Cooldown: 12 s.
+    /// Stats: Speed = 250, RotationSpeed = 2.5, starting HP = 150.
+    /// Unique ability: Durability (E) — halves incoming damage while active.
     /// </summary>
     public partial class BulkyBody : Body
     {
         public BulkyBody() : base() { }
 
-        public BulkyBody(Color color, Node owner, Vector2 position)
-            : base("res://body_bulky.svg", color, owner, new Vector2(80, 80), position)
+        public BulkyBody(Color color, Node owner, Vector2 position,
+                         GunType gunType = GunType.Default)
+            : base("res://body_bulky.svg", color, owner, new Vector2(80, 80), position, gunType)
         {
             Speed         = 250;
             RotationSpeed = 2.5f;

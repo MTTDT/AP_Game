@@ -6,10 +6,11 @@ namespace main
     {
         public DefaultBody() : base() { }
 
-        public DefaultBody(Color color, Node owner, Vector2 position)
-            : base("res://body_default.svg", color, owner, new Vector2(60, 60), position)
+        public DefaultBody(Color color, Node owner, Vector2 position,
+                           GunType gunType = GunType.Default)
+            : base("res://body_default.svg", color, owner, new Vector2(60, 60), position, gunType)
         {
-            // Balanced defaults — Speed=600, RotationSpeed=5 inherited from Body
+            // Balanced defaults — Speed=300, RotationSpeed=5 inherited from Body
         }
 
         protected override void AddUniqueAbility()

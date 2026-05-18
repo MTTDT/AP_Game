@@ -23,6 +23,12 @@ namespace main
             if (_players.Remove(index)) OnPlayersChanged?.Invoke();
         }
 
+        public void Clear()
+        {
+            _players.Clear();
+            OnPlayersChanged?.Invoke();
+        }
+
         public void NotifyChanged() => OnPlayersChanged?.Invoke();
     }
 }

@@ -22,7 +22,7 @@ namespace main
 			int index = 0;
 			foreach (var player in _playersManager.Players.Players.Values)
 			{
-				SpawnBody(player.Id, player.BodyType, index);
+				SpawnBody(player.Id, player.BodyType, player.GunType, index);
 				index++;
 			}
 
@@ -41,7 +41,7 @@ namespace main
 		// SPAWN
 		// ───────────────────────────────────────────────────────────────
 
-		private void SpawnBody(long peerId, BodyType bodyType, int spawnIndex)
+		private void SpawnBody(long peerId, BodyType bodyType, GunType gunType, int spawnIndex)
 		{
 			float xOffset = spawnIndex * 150f;
 			Color color = colors[peerId % colors.Length];
@@ -49,15 +49,14 @@ namespace main
 
 			Body body = bodyType switch
 			{
-				BodyType.Bulky  => new BulkyBody(color, this, position),
-				BodyType.Snappy => new SnapyBody(color, this, position),
-				_               => new DefaultBody(color, this, position)
+				BodyType.Bulky => new BulkyBody(color, this, position, gunType),
+				BodyType.Snappy => new SnapyBody(color, this, position, gunType),
+				_ => new DefaultBody(color, this, position, gunType)
 			};
 
 			body.Name = $"Player_{peerId}";
 			body.SetMultiplayerAuthority((int)peerId);
 
-			// Solo el jugador que realmente muere ejecuta OnBodyDestroyed
 			body.BodyDestroyed += () =>
 			{
 				if (Multiplayer.GetUniqueId() == peerId)
@@ -66,7 +65,8 @@ namespace main
 
 			AddChild(body);
 
-			GD.Print($"Spawned {bodyType} body for player {peerId} (I am {Multiplayer.GetUniqueId()})");
+			GD.Print($"Spawned {bodyType} body + {gunType} gun for player {peerId} (I am {Multiplayer.GetUniqueId()})");
+			
 		}
 
 		// ───────────────────────────────────────────────────────────────
@@ -75,13 +75,8 @@ namespace main
 
 		private void OnBodyDestroyed(long peerId, Body body)
 		{
-			// Quitamos el cuerpo localmente
-			body.QueueFree();
-
-			// Quitamos el cuerpo en TODOS los peers
 			Rpc(nameof(RpcRemoveBody), peerId);
 
-			// Avisamos al servidor
 			if (Multiplayer.IsServer())
 				HandlePlayerEliminated(peerId);
 			else
@@ -102,18 +97,12 @@ namespace main
 			HandlePlayerEliminated(peerId);
 		}
 
-		// ⭐ LÓGICA DE ELIMINACIÓN BASADA EN CUERPOS VIVOS ⭐
 		private void HandlePlayerEliminated(long peerId)
 		{
 			GD.Print($"Player {peerId} eliminated.");
 
-			if (!Multiplayer.IsServer())
-				return;
+			if (!Multiplayer.IsServer()) return;
 
-			// 1) Mandar GAME OVER al que murió
-			RpcId((int)peerId, nameof(RpcShowGameOver));
-
-			// 2) Contar cuántos cuerpos siguen vivos en esta escena
 			int aliveCount = 0;
 			long lastAliveId = -1;
 
@@ -121,15 +110,11 @@ namespace main
 			{
 				if (child is Body body)
 				{
-					// Ignoramos el cuerpo del que acaba de morir
-					if (body.Name == $"Player_{peerId}")
-						continue;
+					if (body.Name == $"Player_{peerId}") continue;
 
-					// Intentamos sacar el peerId del nombre "Player_X"
-					string name = body.Name;
-					if (name.StartsWith("Player_"))
+					if (body.Name.ToString().StartsWith("Player_"))
 					{
-						string idStr = name.Substring("Player_".Length);
+						string idStr = body.Name.ToString().Substring("Player_".Length);
 						if (long.TryParse(idStr, out long id))
 						{
 							aliveCount++;
@@ -141,41 +126,18 @@ namespace main
 
 			GD.Print($"Alive bodies after elimination: {aliveCount}");
 
-			// 3) Si quedan MÁS de 1 vivo → la partida sigue
 			if (aliveCount > 1)
+				_playersManager.NotifyOutcome(winnerId: -1, loserId: peerId);
+			else if (aliveCount == 1)
 			{
-				GD.Print("More than one player alive — match continues.");
-				return;
+				GD.Print($"Player {lastAliveId} wins!");
+				_playersManager.NotifyOutcome(winnerId: lastAliveId, loserId: peerId);
 			}
-
-			// 4) Si no queda nadie vivo → raro, pero no hacemos nada
-			if (aliveCount == 0)
+			else
 			{
 				GD.Print("No players alive — no winner.");
-				return;
+				_playersManager.NotifyOutcome(winnerId: -1, loserId: peerId);
 			}
-
-			// 5) Si queda SOLO 1 vivo → ese gana
-			GD.Print($"Player {lastAliveId} wins!");
-			RpcId((int)lastAliveId, nameof(RpcShowWinScreen));
-		}
-
-		// ───────────────────────────────────────────────────────────────
-		// SCENE CHANGES (CLIENT)
-		// ───────────────────────────────────────────────────────────────
-
-		[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
-		private void RpcShowGameOver()
-		{
-			GD.Print("Showing GAME OVER on peer " + Multiplayer.GetUniqueId());
-			GetTree().ChangeSceneToFile("res://game_over.tscn");
-		}
-
-		[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
-		private void RpcShowWinScreen()
-		{
-			GD.Print("Showing WIN SCREEN on peer " + Multiplayer.GetUniqueId());
-			GetTree().ChangeSceneToFile("res://win_screen.tscn");
 		}
 
 		// ───────────────────────────────────────────────────────────────

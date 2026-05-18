@@ -60,7 +60,7 @@ namespace main
 		{
 			if (body is Bullet bullet)
 			{
-				_health -= 10;
+				_health -= bullet.Damage;
 				UpdateHealthText();
 				bullet.QueueFree();
 
