@@ -8,6 +8,7 @@ namespace main
 	public partial class Menu : Node
 	{
 		private LineEdit _ipInput;
+		private LineEdit _nameInput;
 		private PlayersManager _playersManager;
 
 		public override void _Ready()
@@ -25,12 +26,18 @@ namespace main
 			_ipInput.PlaceholderText = "Enter host IP to join";
 			_ipInput.Text = "";
 
+			_nameInput = GetNode<LineEdit>("MenuContainer/PlayerNameInput");
+			_nameInput.PlaceholderText = "Enter your name";
+			_nameInput.Text = "";
+
 			hostBtn.Pressed += OnHostPressed;
 			joinBtn.Pressed += OnJoinPressed;
 		}
 
 		private void OnHostPressed()
 		{
+			GameState.PlayerName = string.IsNullOrWhiteSpace(_nameInput.Text) ? "Host" : _nameInput.Text;
+
 			GameState.Role = GameState.NetworkRole.Server;
 			GameState.HostIP = GetLocalIPAddress();
 			_playersManager.StartServer();
@@ -39,6 +46,8 @@ namespace main
 
 		private void OnJoinPressed()
 		{
+			GameState.PlayerName = string.IsNullOrWhiteSpace(_nameInput.Text) ? "Client" : _nameInput.Text;
+			
 			GameState.Role = GameState.NetworkRole.Client;
 			GameState.HostIP = _ipInput.Text;
 			_playersManager.StartClient();

@@ -37,6 +37,17 @@ namespace main
             _durationTimer.OneShot = true;
             _durationTimer.Timeout += OnDurationExpired;
             AddChild(_durationTimer);
+
+            CallDeferred(nameof(InitializeUI));
+        }
+
+        private void InitializeUI()
+        {
+            if (GetParent() is Body body && body.IsMultiplayerAuthority())
+            {
+                Vector2 offset = new Vector2(140f, 20f);
+                CooldownUI.Create(this, _cooldownTimer, Cooldown, CooldownUI.ScreenCorner.BottomLeft, offset, "E");
+            }
         }
 
         public void Activate()

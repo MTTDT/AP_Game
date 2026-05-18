@@ -45,24 +45,34 @@ namespace main
             // Sprite
             var sprite = new Sprite2D
             {
-                Texture          = GD.Load<Texture2D>(_texturePath),
-                Modulate         = _color,
-                Offset           = new Vector2(0, -30f),
-                RotationDegrees  = 90f
+                Texture = GD.Load<Texture2D>(_texturePath),
+                Modulate = _color,
+                Offset = new Vector2(0, -30f),
+                RotationDegrees = 90f
             };
             AddChild(sprite);
 
             // Muzzle marker
-            _shooter          = new Marker2D { Position = new Vector2(60f, 0f) };
+            _shooter = new Marker2D { Position = new Vector2(60f, 0f) };
             AddChild(_shooter);
 
             // Shoot cooldown timer
-            _shootTimer          = new Timer { WaitTime = FireRate, OneShot = true };
+            _shootTimer = new Timer { WaitTime = FireRate, OneShot = true };
             _shootTimer.Timeout += () => _canShoot = true;
             AddChild(_shootTimer);
 
-            // Subclass-specific ability (e.g. big bullet, pierce, burst)
             AddUniqueAbility();
+            
+            CallDeferred(nameof(InitializeUI));
+        }
+
+        private void InitializeUI()
+        {
+            if (GetParent() is Body body && body.IsMultiplayerAuthority())
+            {
+                Vector2 offset = new Vector2(140f, 20f);
+                CooldownUI.Create(this, _shootTimer, (float)_shootTimer.WaitTime, CooldownUI.ScreenCorner.BottomRight, offset, "ML");
+            }
         }
 
         /// <summary>Override in subclasses to add a unique IGunAbility child.</summary>

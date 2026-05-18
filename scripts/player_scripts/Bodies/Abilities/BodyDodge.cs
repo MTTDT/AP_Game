@@ -23,6 +23,17 @@ namespace main
             _cooldownTimer.OneShot = true;
             _cooldownTimer.Timeout += OnCooldownExpired;
             AddChild(_cooldownTimer);
+
+            CallDeferred(nameof(InitializeUI));
+        }
+
+        private void InitializeUI()
+        {
+            if (GetParent() is Body body && body.IsMultiplayerAuthority())
+            {
+                Vector2 offset = new Vector2(20f, 20f);
+                CooldownUI.Create(this, _cooldownTimer, Cooldown, CooldownUI.ScreenCorner.BottomLeft, offset, "Q");
+            }
         }
 
         public void Activate()
