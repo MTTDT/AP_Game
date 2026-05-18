@@ -98,7 +98,7 @@ namespace main
             var hitShape = new CollisionShape2D();
             hitShape.Shape = new RectangleShape2D { Size = new Vector2(90f, 70f) };
             _hitbox.AddChild(hitShape);
-            _hitbox.BodyEntered += OnBulletHit;
+            _hitbox.AreaEntered += OnBulletHit;
             AddChild(_hitbox);
 
             // --- Auto-reset timer (respawn HP after damage) ---
@@ -139,7 +139,7 @@ namespace main
 
         // ── Bullet hit ───────────────────────────────────────────────────────
 
-        private void OnBulletHit(Node body)
+        private void OnBulletHit(Area2D body)
         {
             if (body is not Bullet bullet) return;
 
@@ -150,7 +150,7 @@ namespace main
             if (!IsMultiplayerAuthority()) return;
 
             int damage = Mathf.RoundToInt(bulletDamage * _damageReduction);
-            
+
             _hp = Mathf.Max(0, _hp - damage);
             UpdateHpLabel();
 

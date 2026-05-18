@@ -3,16 +3,11 @@ using Godot;
 namespace main
 {
     /// <summary>
-    /// A RigidBody2D projectile.
-    ///
-    /// New parameters vs. original:
-    ///   scale      – uniform scale applied to the sprite and collision shape.
-    ///                1.0 = normal, 3.0 = giant tank shell.
-    ///   pierceWalls – when true the bullet's collision mask excludes the
-    ///                 environment layer (layer 1 = bodies, layer 3 = walls/bounds)
-    ///                 so it passes straight through them.
+    /// A manual Area2D projectile (non-RigidBody).
+    /// Tracks manual movement via _PhysicsProcess and uses Area2D detection
+    /// to hit players or walls.
     /// </summary>
-    public partial class Bullet : RigidBody2D
+    public partial class Bullet : Area2D
     {
         private Vector2 Velocity     { get; set; }
         private Vector2 Direction    { get; set; }
@@ -20,11 +15,11 @@ namespace main
         private float   MaxDistance  { get; set; }
         private float   Scale        { get; set; }
         private bool    PierceWalls  { get; set; }
-        public int     Damage       { get; set; }
+        public int      Damage       { get; set; }
 
         private Vector2 _startPosition;
 
-        // Original constructor — keeps existing call-sites working (scale=1, no pierce)
+        // Original constructor — keeps existing call-sites working
         public Bullet(Vector2 velocity, Vector2 direction, string texturePath, float maxDistance)
             : this(velocity, direction, texturePath, maxDistance, 1.0f, false) { }
 
@@ -45,15 +40,21 @@ namespace main
             _startPosition = GlobalPosition;
 
             // Layer 4 = bullets.
-            // Normal bullets hit everything (bodies on 2, walls on 1|3).
+            // Normal bullets scan bodies (2) and walls (1|3).
             // Piercing bullets skip layers 1 and 3 — only bodies (layer 2) stop them.
             SetDeferred("collision_layer", 4);
-            SetDeferred("collision_mask", PierceWalls ? 2 : (1 | 2 | 3));
+            SetDeferred("collision_mask", PierceWalls ? 1 : (1 | 2 | 3));
+
+            // Wire up collision events for non-physics detection
+            BodyEntered += OnObstacleOrPlayerHit;
+            AreaEntered += OnAreaHit; 
 
             var sprite = new Sprite2D
             {
                 Texture = GD.Load<Texture2D>(TexturePath),
-                Scale   = Vector2.One * Scale
+                Scale = Vector2.One * Scale,
+                RotationDegrees = 90f
+                
             };
             AddChild(sprite);
 
@@ -66,14 +67,35 @@ namespace main
             col.Shape = shape;
             AddChild(col);
 
-            GravityScale    = 0f;
-            LinearVelocity  = Direction.Normalized() * Velocity.Length();
+            // Calculate exact movement vector per second
+            Velocity = Direction.Normalized() * Velocity.Length();
         }
 
-        public override void _Process(double delta)
+        public override void _PhysicsProcess(double delta)
         {
+            // Manually move the bullet forward without rigid body physics
+            GlobalPosition += Velocity * (float)delta;
+
+            // Distance check to despawn
             if (GlobalPosition.DistanceTo(_startPosition) >= MaxDistance)
+            {
                 QueueFree();
+            }
+        }
+
+        // Triggered when hitting CharacterBody2D, TileMaps, StaticBodies, etc.
+        private void OnObstacleOrPlayerHit(Node2D body)
+        {
+            // If it hits a Wall/Boundary (Layer 1 or 3) or a Player Body (Layer 2)
+            // Note: Damage to players is safely handled by the Player's Hitbox Area2D.
+            QueueFree();
+        }
+
+        // Triggered if it hits another Area2D
+        private void OnAreaHit(Area2D area)
+        {
+            // Optional: If you want bullets to destroy themselves when hitting 
+            // other specific hitboxes/areas, handle it here.
         }
     }
 }

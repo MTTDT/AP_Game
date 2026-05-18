@@ -13,28 +13,28 @@
 [ext_resource type="Texture2D" uid="uid://bqifmkgy5dfdk" path="res://Shrub4.png" id="10_0h7mo"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dpw2a"]
-size = Vector2(10, 260)
+size = Vector2(36.599976, 260)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_epypp"]
-size = Vector2(10, 260)
+size = Vector2(37.599976, 260)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jqsg2"]
-size = Vector2(10, 260)
+size = Vector2(41.599976, 260)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0e48y"]
-size = Vector2(10, 260)
+size = Vector2(38.599976, 260)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8xc84"]
-size = Vector2(500, 10)
+size = Vector2(500, 70)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0hol4"]
-size = Vector2(500, 10)
+size = Vector2(500, 70)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ynkqc"]
-size = Vector2(500, 10)
+size = Vector2(500, 70)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_q6r6c"]
-size = Vector2(500, 10)
+size = Vector2(500, 74)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hqns4"]
 size = Vector2(2180, 10)
@@ -86,7 +86,7 @@ collision_layer = 2
 collision_mask = 9
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/LeftBound" unique_id=1791633776]
-position = Vector2(-537.6, -185)
+position = Vector2(-524.3, -185)
 shape = SubResource("RectangleShape2D_dpw2a")
 
 [node name="LeftBound2" type="StaticBody2D" parent="WorldBounds" unique_id=1688663061]
@@ -94,7 +94,7 @@ collision_layer = 2
 collision_mask = 9
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="WorldBounds/LeftBound2" unique_id=2128252942]
-position = Vector2(-537.6, 185)
+position = Vector2(-523.8, 185)
 shape = SubResource("RectangleShape2D_epypp")
 
 [node name="RightBound" type="StaticBody2D" parent="WorldBounds" unique_id=1208194620]
@@ -102,7 +102,7 @@ collision_layer = 2
 collision_mask = 9
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/RightBound" unique_id=603409772]
-position = Vector2(537.6, -185)
+position = Vector2(521.8, -185)
 shape = SubResource("RectangleShape2D_jqsg2")
 
 [node name="RightBound2" type="StaticBody2D" parent="WorldBounds" unique_id=1199361471]
@@ -110,7 +110,7 @@ collision_layer = 2
 collision_mask = 9
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="WorldBounds/RightBound2" unique_id=1885780449]
-position = Vector2(537.6, 185)
+position = Vector2(523.3, 185)
 shape = SubResource("RectangleShape2D_0e48y")
 
 [node name="TopBound" type="StaticBody2D" parent="WorldBounds" unique_id=1955893118]
@@ -118,7 +118,7 @@ collision_layer = 2
 collision_mask = 9
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/TopBound" unique_id=614362722]
-position = Vector2(-290, -320)
+position = Vector2(-290, -290)
 shape = SubResource("RectangleShape2D_8xc84")
 
 [node name="TopBound2" type="StaticBody2D" parent="WorldBounds" unique_id=1407384923]
@@ -126,7 +126,7 @@ collision_layer = 2
 collision_mask = 9
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="WorldBounds/TopBound2" unique_id=450056671]
-position = Vector2(290, -320)
+position = Vector2(290, -290)
 shape = SubResource("RectangleShape2D_0hol4")
 
 [node name="BottomBound" type="StaticBody2D" parent="WorldBounds" unique_id=2099820081]
@@ -134,7 +134,7 @@ collision_layer = 2
 collision_mask = 9
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WorldBounds/BottomBound" unique_id=1327871750]
-position = Vector2(-290, 320)
+position = Vector2(-290, 290)
 shape = SubResource("RectangleShape2D_ynkqc")
 
 [node name="BottomBound2" type="StaticBody2D" parent="WorldBounds" unique_id=519984015]
@@ -142,7 +142,7 @@ collision_layer = 2
 collision_mask = 9
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="WorldBounds/BottomBound2" unique_id=1167915808]
-position = Vector2(290, 320)
+position = Vector2(290, 288)
 shape = SubResource("RectangleShape2D_q6r6c")
 
 [node name="LimitUp" type="StaticBody2D" parent="WorldBounds" unique_id=2121260621]

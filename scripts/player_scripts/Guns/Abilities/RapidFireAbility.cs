@@ -4,10 +4,8 @@ namespace main
 {
     /// <summary>
     /// Machine Gun unique ability.
-    /// Press E to enter "Overdrive" for 4 seconds:
-    ///   • fire rate halved  (shoots twice as fast)
-    ///   • bullet range doubled
-    /// 15-second cooldown (starts when Overdrive ends).
+    /// Press Right Click to fire a burst of 10 rapid bullets,
+    /// then enters a 15-second cooldown.
     /// </summary>
     public partial class RapidFireAbility : Node, IGunAbility
     {
@@ -16,19 +14,21 @@ namespace main
         public float Cooldown => 15.0f;
 
         private bool _canActivate = true;
-        private Timer _durationTimer;
+        private Timer _burstTimer;
         private Timer _cooldownTimer;
-
-        // Emitted so MachineGun can update its live FireRate / BulletRange
-        [Signal] public delegate void OverdriveStartedEventHandler();
-        [Signal] public delegate void OverdriveEndedEventHandler();
+        
+        private int _bulletsLeftToShoot = 0;
+        private const int TotalBurstShots = 10;
+        private const float TimeBetweenBurstShots = 0.08f; // Interval between rapid shots (seconds)
 
         public override void _Ready()
         {
-            _durationTimer = new Timer { WaitTime = 4.0f, OneShot = true };
-            _durationTimer.Timeout += OnDurationExpired;
-            AddChild(_durationTimer);
+            // Timer responsible for the delay between each bullet in the burst
+            _burstTimer = new Timer { WaitTime = TimeBetweenBurstShots, OneShot = false };
+            _burstTimer.Timeout += FireBurstBullet;
+            AddChild(_burstTimer);
 
+            // Cooldown timer
             _cooldownTimer = new Timer { WaitTime = Cooldown, OneShot = true };
             _cooldownTimer.Timeout += () => _canActivate = true;
             AddChild(_cooldownTimer);
@@ -36,33 +36,57 @@ namespace main
 
         public void Activate()
         {
-            if (!_canActivate) return;
+            if (!_canActivate || _bulletsLeftToShoot > 0) return;
 
             _canActivate = false;
-            _durationTimer.Start();
-            EmitSignal(SignalName.OverdriveStarted);
+            _bulletsLeftToShoot = TotalBurstShots;
+            
+            // Start firing immediately and kick off the interval timer
+            FireBurstBullet();
+            _burstTimer.Start();
         }
 
-        private void OnDurationExpired()
+        private void FireBurstBullet()
         {
-            _cooldownTimer.Start();
-            EmitSignal(SignalName.OverdriveEnded);
+            if (GetParent() is Gun gun)
+            {
+                // Call Gun's ShootSpecial to bypass the standard weapon fire rate delay.
+                // It uses the gun's standard stats, but ignores the gun's internal _canShoot flag.
+                // We double the speed slightly or customize parameters here if you want!
+                gun.ShootSpecial(
+                    gun.Get("BulletSpeed").AsSingle(), 
+                    gun.Get("BulletRange").AsSingle(), 
+                    gun.Get("BulletScale").AsSingle(), 
+                    gun.Get("PierceWalls").AsBool(), 
+                    gun.Get("BulletDamage").AsInt32()
+                );
+            }
+
+            _bulletsLeftToShoot--;
+
+            // Once 10 bullets have been fired, stop the burst and start the cooldown
+            if (_bulletsLeftToShoot <= 0)
+            {
+                _burstTimer.Stop();
+                _cooldownTimer.Start();
+            }
         }
 
         public override void _Process(double delta)
         {
             if (GetParent() is Gun gun && !gun.IsMultiplayerAuthority()) return;
+            
             if (Input.IsActionJustPressed("right_click")) Activate();
         }
         
         public float GetTimeLeft()
         {
-            // If we are currently in the 4-second active buff period
-            if (_durationTimer != null && !_durationTimer.IsStopped())
+            // If we are currently firing the rapid burst
+            if (_bulletsLeftToShoot > 0)
             {
-                return (float)_durationTimer.TimeLeft;
+                return _bulletsLeftToShoot * TimeBetweenBurstShots;
             }
-            // If we are in the 15-second cooldown period
+            // If we are waiting out the 15-second cooldown
             if (_cooldownTimer != null && !_cooldownTimer.IsStopped())
             {
                 return (float)_cooldownTimer.TimeLeft;
