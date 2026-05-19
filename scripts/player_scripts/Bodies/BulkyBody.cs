@@ -2,11 +2,7 @@ using Godot;
 
 namespace main
 {
-    /// <summary>
-    /// Bulky Body — slow and tanky.
-    /// Stats: Speed = 250, RotationSpeed = 2.5, starting HP = 150.
-    /// Unique ability: Durability (E) — halves incoming damage while active.
-    /// </summary>
+
     public partial class BulkyBody : Body
     {
         public BulkyBody() : base() { }

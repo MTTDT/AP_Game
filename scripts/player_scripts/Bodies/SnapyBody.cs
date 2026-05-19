@@ -2,12 +2,6 @@ using Godot;
 
 namespace main
 {
-    /// <summary>
-    /// Snappy Body — fast but fragile.
-    /// Stats: Speed = 500, RotationSpeed = 8, starting HP = 70.
-    /// Unique ability: Speed Boost (E) — doubles movement speed for 2 s.
-    /// Cooldown: 8 s.
-    /// </summary>
     public partial class SnapyBody : Body
     {
         private int _baseSpeed;

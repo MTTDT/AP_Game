@@ -2,11 +2,7 @@ using Godot;
 
 namespace main
 {
-    /// <summary>
-    /// Speed Boost Ability — exclusive to SnapyBody.
-    /// Press E to double movement speed for 2 seconds.
-    /// 8-second cooldown.
-    /// </summary>
+
     public partial class SpeedBoostAbility : Node, IBodyAbility
     {
         public string AbilityName => "Speed Boost";

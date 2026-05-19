@@ -2,11 +2,6 @@ using Godot;
 
 namespace main
 {
-    /// <summary>
-    /// Default Gun unique ability.
-    /// Press E to fire one oversized bullet (scale 3 = tank-shell size).
-    /// 12-second cooldown.
-    /// </summary>
     public partial class BigBulletAbility : Node, IGunAbility
     {
         public string AbilityName => "Big Bullet";
@@ -39,7 +34,6 @@ namespace main
             if (!_canActivate) return;
             if (GetParent() is not Gun gun) return;
 
-            // Giant bullet: 3× scale, same speed and range as normal but huge hitbox
             gun.ShootSpecial(
                 speed: 500f,
                 range: 400f,

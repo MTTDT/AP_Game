@@ -21,26 +21,22 @@ namespace main
 		{
 			Position = _Position;
 
-			// El Dummy se comporta como roca: bloquea jugador y balas
 			SetDeferred("collision_layer", 2);
 			SetDeferred("collision_mask", 1 | 4);
 
-			// Sprite
 			Sprite2D sprite = new Sprite2D();
 			sprite.Texture = GD.Load<Texture2D>(TexturePath);
 			AddChild(sprite);
 
-			// Cuerpo físico (colisión sólida)
 			CollisionShape2D col = new CollisionShape2D();
 			RectangleShape2D shape = new RectangleShape2D();
 			shape.Size = new Vector2(40, 60);
 			col.Shape = shape;
 			AddChild(col);
 
-			// Hitbox para detectar balas
 			Area2D hitbox = new Area2D();
-			hitbox.CollisionLayer = 0; // no colisiona físicamente
-			hitbox.CollisionMask = 4;  // detecta balas
+			hitbox.CollisionLayer = 0; 
+			hitbox.CollisionMask = 4;  
 
 			CollisionShape2D hitShape = new CollisionShape2D();
 			hitShape.Shape = new RectangleShape2D() { Size = new Vector2(40, 60) };
@@ -49,7 +45,6 @@ namespace main
 			hitbox.BodyEntered += OnBulletHit;
 			AddChild(hitbox);
 
-			// HP Label
 			_hpLabel = new Label();
 			_hpLabel.Position = new Vector2(-20, -60);
 			AddChild(_hpLabel);

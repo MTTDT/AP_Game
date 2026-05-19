@@ -23,16 +23,6 @@ namespace main
             BottomLeft,
             BottomRight
         }
-
-        /// <summary>
-        /// Creates and attaches a permanent cooldown tracker UI anchored to a specific screen corner.
-        /// </summary>
-        /// <param name="parent">The ability node attaching this UI.</param>
-        /// <param name="timer">The cooldown timer node to track.</param>
-        /// <param name="maxCooldown">Total wait duration.</param>
-        /// <param name="corner">Select BottomLeft or BottomRight layout behavior.</param>
-        /// <param name="offset">Custom offset relative to that screen corner.</param>
-        /// <param name="shortcutText">Display prompt (e.g. "Q", "M1").</param>
         public static CooldownUI Create(Node parent, Timer timer, float maxCooldown, ScreenCorner corner, Vector2 offset, string shortcutText, float iconSize = 96f)
         {
             var ui = new CooldownUI(timer, maxCooldown, corner, offset, shortcutText, iconSize);
@@ -47,32 +37,27 @@ namespace main
             _maxCooldown = maxCooldown;
             _shortcutText = shortcutText;
 
-            // 1. Create an invisible control container that acts as our screen anchor point
             _anchorContainer = new Control();
             AddChild(_anchorContainer);
 
-            // Configure layout anchoring based on choice
             if (corner == ScreenCorner.BottomLeft)
             {
-                // Anchor to bottom-left corner of the window
                 _anchorContainer.LayoutMode = 1;
                 _anchorContainer.SetAnchorsPreset(Control.LayoutPreset.BottomLeft);
                 _anchorContainer.Position = new Vector2(offset.X, -offset.Y - iconSize); 
             }
             else
             {
-                // Anchor to bottom-right corner of the window
                 _anchorContainer.LayoutMode = 1;
                 _anchorContainer.SetAnchorsPreset(Control.LayoutPreset.BottomRight);
                 _anchorContainer.Position = new Vector2(-offset.X - iconSize, -offset.Y - iconSize);
             }
 
-            // 2. Set up our radial bar, placing it inside our newly anchored layout spacer
             Texture2D circleTexture = CreateCircleTexture((int)(iconSize / 2)); 
 
             _radialBar = new TextureProgressBar
             {
-                Position = Vector2.Zero, // Stays attached to container position coordinates
+                Position = Vector2.Zero, 
                 Size = new Vector2(iconSize, iconSize),
                 MinValue = 0,
                 MaxValue = maxCooldown,

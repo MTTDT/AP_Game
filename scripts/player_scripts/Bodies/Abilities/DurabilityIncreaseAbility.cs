@@ -2,11 +2,7 @@ using Godot;
 
 namespace main
 {
-    /// <summary>
-    /// Durability Increase Ability — exclusive to BulkyBody.
-    /// Press E to take half damage for 4 seconds.
-    /// Cooldown: 12 s.
-    /// </summary>
+ 
     public partial class DurabilityIncreaseAbility : Node, IBodyAbility
     {
         public string AbilityName => "Durability Increase";

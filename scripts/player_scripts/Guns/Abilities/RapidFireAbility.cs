@@ -19,16 +19,14 @@ namespace main
         
         private int _bulletsLeftToShoot = 0;
         private const int TotalBurstShots = 10;
-        private const float TimeBetweenBurstShots = 0.08f; // Interval between rapid shots (seconds)
+        private const float TimeBetweenBurstShots = 0.08f; 
 
         public override void _Ready()
         {
-            // Timer responsible for the delay between each bullet in the burst
             _burstTimer = new Timer { WaitTime = TimeBetweenBurstShots, OneShot = false };
             _burstTimer.Timeout += FireBurstBullet;
             AddChild(_burstTimer);
 
-            // Cooldown timer
             _cooldownTimer = new Timer { WaitTime = Cooldown, OneShot = true };
             _cooldownTimer.Timeout += () => _canActivate = true;
             AddChild(_cooldownTimer);
@@ -52,7 +50,6 @@ namespace main
             _canActivate = false;
             _bulletsLeftToShoot = TotalBurstShots;
             
-            // Start firing immediately and kick off the interval timer
             FireBurstBullet();
             _burstTimer.Start();
         }
@@ -61,9 +58,7 @@ namespace main
         {
             if (GetParent() is Gun gun)
             {
-                // Call Gun's ShootSpecial to bypass the standard weapon fire rate delay.
-                // It uses the gun's standard stats, but ignores the gun's internal _canShoot flag.
-                // We double the speed slightly or customize parameters here if you want!
+
                 gun.ShootSpecial(
                     gun.Get("BulletSpeed").AsSingle(), 
                     gun.Get("BulletRange").AsSingle(), 
@@ -75,7 +70,6 @@ namespace main
 
             _bulletsLeftToShoot--;
 
-            // Once 10 bullets have been fired, stop the burst and start the cooldown
             if (_bulletsLeftToShoot <= 0)
             {
                 _burstTimer.Stop();
@@ -92,12 +86,10 @@ namespace main
         
         public float GetTimeLeft()
         {
-            // If we are currently firing the rapid burst
             if (_bulletsLeftToShoot > 0)
             {
                 return _bulletsLeftToShoot * TimeBetweenBurstShots;
             }
-            // If we are waiting out the 15-second cooldown
             if (_cooldownTimer != null && !_cooldownTimer.IsStopped())
             {
                 return (float)_cooldownTimer.TimeLeft;

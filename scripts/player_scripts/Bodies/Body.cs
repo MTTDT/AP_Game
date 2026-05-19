@@ -3,14 +3,7 @@ using System;
 
 namespace main
 {
-    /// <summary>
-    /// Base body class. Handles movement, HP, collision, camera, and gun.
-    /// Subclasses (DefaultBody, BulkyBody, SnapyBody) attach their own
-    /// unique IBodyAbility in AddUniqueAbility().
-    /// All bodies also receive BodyDodge automatically.
-    ///
-    /// The GunType parameter selects which Gun subclass is instantiated.
-    /// </summary>
+
     public partial class Body : CharacterBody2D
     {
         private string TexturePath { get; set; }
@@ -28,7 +21,7 @@ namespace main
         protected int _maxHp = 100;
         
         private Label _nameLabel;
-        private ProgressBar _hpBar; // Changed to standard ProgressBar for built-in text support
+        private ProgressBar _hpBar; 
         private Area2D _hitbox;
         private Timer _resetTimer;
 
@@ -48,7 +41,6 @@ namespace main
 
         public override void _Ready()
         {
-            // --- Collision shape ---
             var bodyShape = new CollisionShape2D();
             bodyShape.Shape = new RectangleShape2D { Size = new Vector2(60f, 60f) };
             AddChild(bodyShape);
@@ -58,7 +50,6 @@ namespace main
             SetDeferred("collision_layer", 1);
             SetDeferred("collision_mask", 2 | 3 | 5);
 
-            // --- Sprite ---
             var sprite = new Sprite2D
             {
                 Texture = GD.Load<Texture2D>(TexturePath),
@@ -66,7 +57,6 @@ namespace main
             };
             AddChild(sprite);
 
-            // --- Camera (authority only) ---
             if (IsMultiplayerAuthority())
             {
                 var camera = new Camera2D { Enabled = true };
@@ -77,7 +67,6 @@ namespace main
                 camera.LimitBottom = 622;
             }
 
-            // --- Gun (subclass selected by GunType) ---
             Gun gun = _gunType switch
             {
                 GunType.Sniper => new SniperGun(Color),
@@ -88,7 +77,6 @@ namespace main
             gun.SetMultiplayerAuthority(GetMultiplayerAuthority());
             AddChild(gun);
 
-            // --- Name label ---
             _nameLabel = new Label { Position = new Vector2(-50f, -115f) };
             _nameLabel.HorizontalAlignment = HorizontalAlignment.Center;
             _nameLabel.CustomMinimumSize = new Vector2(100f, 0f);
@@ -98,29 +86,27 @@ namespace main
             }
             AddChild(_nameLabel);
 
-            // --- Built-in HP Progress Bar ---
             _hpBar = new ProgressBar
             {
                 Position = new Vector2(-50f, -90f),
-                Size = new Vector2(100f, 20f), // Defines a clear visual width/height
+                Size = new Vector2(100f, 20f),
                 MinValue = 0,
                 MaxValue = _maxHp,
                 Value = _hp,
-                ShowPercentage = false // We will override this text manually below
+                ShowPercentage = false 
             };
 
             AddChild(_hpBar);
             var barText = new Label
             {
                 Name = "BarText",
-                Size = _hpBar.Size, // Match the size of the progress bar
+                Size = _hpBar.Size, 
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
             _hpBar.AddChild(barText);
             UpdateHpBarText();
 
-            // --- Hitbox ---
             _hitbox = new Area2D { Name = "Hitbox" };
             _hitbox.CollisionLayer = 2;
             _hitbox.CollisionMask = 4;
@@ -130,22 +116,17 @@ namespace main
             _hitbox.AreaEntered += OnBulletHit;
             AddChild(_hitbox);
 
-            // --- Auto-reset timer (respawn HP after damage) ---
             _resetTimer = new Timer { WaitTime = 5.0, OneShot = true };
             _resetTimer.Timeout += OnResetTimer;
             AddChild(_resetTimer);
 
-            // --- Shared dodge ability ---
             AddChild(new BodyDodge());
 
-            // --- Subclass-specific body ability ---
             AddUniqueAbility();
         }
 
-        /// <summary>Override in each body subclass to attach that body's unique IBodyAbility.</summary>
         protected virtual void AddUniqueAbility() { }
 
-        // ── HP helpers ──────────────────────────────────────────────────────
 
         protected void UpdateHpBarText()
         {
@@ -173,11 +154,9 @@ namespace main
 
         public void SetDamageReduction(float multiplier) => _damageReduction = multiplier;
 
-        // ── Signals ─────────────────────────────────────────────────────────
 
         [Signal] public delegate void BodyDestroyedEventHandler();
 
-        // ── Bullet hit ───────────────────────────────────────────────────────
 
         private void OnBulletHit(Area2D body)
         {
@@ -222,7 +201,6 @@ namespace main
             Rpc(nameof(SyncHp), _hp);
         }
 
-        // ── Movement ─────────────────────────────────────────────────────────
 
         public void GetInput()
         {
@@ -238,7 +216,6 @@ namespace main
             Rotation += _rotationDirection * RotationSpeed * (float)delta;
             MoveAndSlide();
 
-            // Rotate health bar layout offset around player space
             var barOffset = new Vector2(-50f, -90f);
             _hpBar.Position = barOffset.Rotated(-Rotation);
             _hpBar.Rotation = -Rotation;
@@ -258,11 +235,8 @@ namespace main
         {
             Position            = pos;
             Rotation            = rot;
-            
-            // Sync UI components over network parameters
             _hpBar.Position     = barPos;
             _hpBar.Rotation     = barRot;
-
             _nameLabel.Position = namePos;
             _nameLabel.Rotation = nameRot;
             _nameLabel.Text     = playerName;

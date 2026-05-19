@@ -2,13 +2,6 @@ using Godot;
 
 namespace main
 {
-    /// <summary>
-    /// Sniper Gun unique ability.
-    /// Press E to fire a single bullet that passes through walls and bounds
-    /// (collision mask excludes environment layers — only body hitboxes stop it).
-    /// The shot travels the full map width so it never fades mid-arena.
-    /// 10-second cooldown.
-    /// </summary>
     public partial class PierceAbility : Node, IGunAbility
     {
         public string AbilityName => "Pierce";
@@ -40,7 +33,6 @@ namespace main
             if (!_canActivate) return;
             if (GetParent() is not Gun gun) return;
 
-            // Piercing bullet: travels across the whole arena (3000 px), normal size
             gun.ShootSpecial(
                 speed: 700f,
                 range: 3000f,

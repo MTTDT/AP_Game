@@ -42,7 +42,6 @@ namespace main
 
             if (GetParent() is Body body)
             {
-                // Dash backward (negative Y = forward in Godot's default orientation)
                 body.Position += body.Transform.Y * -300f;
             }
 
@@ -54,7 +53,6 @@ namespace main
 
         public override void _Process(double delta)
         {
-            // Only the authority (local player) triggers input
             if (GetParent() is Body body && !body.IsMultiplayerAuthority()) return;
 
             if (Input.IsActionJustPressed("q"))

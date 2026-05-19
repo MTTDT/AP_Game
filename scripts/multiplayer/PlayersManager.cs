@@ -41,7 +41,6 @@ namespace main
 			Multiplayer.ConnectionFailed += () => GD.PrintErr("Connection failed!");
 		}
 
-		// ── Body type selection ──────────────────────────────────────────────
 
 		public void SelectBodyType(BodyType type)
 		{
@@ -86,7 +85,6 @@ namespace main
 			}
 		}
 
-		// ── Gun type selection ───────────────────────────────────────────────
 
 		public void SelectGunType(GunType type)
 		{
@@ -131,7 +129,6 @@ namespace main
 			}
 		}
 
-		// ── Game flow ────────────────────────────────────────────────────────
 
 		public void StartGame()
 		{
@@ -165,14 +162,14 @@ namespace main
 				RpcId(winnerId, nameof(RpcReceiveWinScreen));
 		}
 
-		[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false)]
+		[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
 		private void RpcReceiveGameOver()
 		{
 			GD.Print("Showing GAME OVER on peer " + Multiplayer.GetUniqueId());
 			GetTree().ChangeSceneToFile("res://game_over.tscn");
 		}
 
-		[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false)]
+		[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
 		private void RpcReceiveWinScreen()
 		{
 			GD.Print("Showing WIN SCREEN on peer " + Multiplayer.GetUniqueId());
@@ -185,6 +182,8 @@ namespace main
 			GameState.GameActive = false;
 			Rpc(nameof(ReceiveReturnToPool));
 		}
+
+		
 
 		public void PlayerQuit()
 		{
@@ -230,13 +229,16 @@ namespace main
 		private void ReceiveReturnToPool()
 		{
 			GameState.GameActive = false;
-			Players.Clear();
-			if (Multiplayer.IsServer())
-				AddPlayer(1);
+
+			foreach (var player in Players.Players.Values)
+			{
+				player.BodyType = BodyType.Default; 
+				player.GunType = GunType.Default;
+			}
+			Players.NotifyChanged();
 			GetTree().ChangeSceneToFile("res://players_pool.tscn");
 		}
 
-		// ── Connection callbacks ─────────────────────────────────────────────
 
 		private void OnConnectedToServer()
 		{

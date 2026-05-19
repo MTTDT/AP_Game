@@ -37,10 +37,6 @@ namespace main
 
 		private void OnPlayersChanged() { }
 
-		// ───────────────────────────────────────────────────────────────
-		// SPAWN
-		// ───────────────────────────────────────────────────────────────
-
 		private void SpawnBody(long peerId, BodyType bodyType, GunType gunType, int spawnIndex)
 		{
 			float xOffset = spawnIndex * 150f;
@@ -68,10 +64,6 @@ namespace main
 			GD.Print($"Spawned {bodyType} body + {gunType} gun for player {peerId} (I am {Multiplayer.GetUniqueId()})");
 			
 		}
-
-		// ───────────────────────────────────────────────────────────────
-		// DEATH & WIN (SERVER DECIDES)
-		// ───────────────────────────────────────────────────────────────
 
 		private void OnBodyDestroyed(long peerId, Body body)
 		{
@@ -140,9 +132,6 @@ namespace main
 			}
 		}
 
-		// ───────────────────────────────────────────────────────────────
-		// INPUT
-		// ───────────────────────────────────────────────────────────────
 
 		public override void _Process(double delta)
 		{

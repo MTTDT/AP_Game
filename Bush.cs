@@ -12,7 +12,6 @@ public partial class Bush : Area2D
 	{
 		if (body is main.Body player)
 		{
-			// Make player semi-transparent
 			player.Modulate = new Color(1, 1, 1, 0.4f);
 		}
 	}
@@ -21,7 +20,6 @@ public partial class Bush : Area2D
 	{
 		if (body is main.Body player)
 		{
-			// Restore visibility
 			player.Modulate = Colors.White;
 		}
 	}

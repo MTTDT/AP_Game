@@ -2,11 +2,6 @@ using Godot;
 
 namespace main
 {
-    /// <summary>
-    /// Heal Ability — exclusive to DefaultBody.
-    /// Press E to boost HP to 150 for 5 seconds, then clamp back to 100.
-    /// 10-second cooldown.
-    /// </summary>
     public partial class HealAbility : Node, IBodyAbility
     {
         public string AbilityName => "Heal";
@@ -17,7 +12,6 @@ namespace main
         private Timer _cooldownTimer;
         private Timer _durationTimer;
 
-        // Emitted so Body can update its HP value & label
         [Signal]
         public delegate void HealStartedEventHandler(int newHp);
 
