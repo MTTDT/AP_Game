@@ -18,7 +18,7 @@ namespace main
 		{
 			GD.Print("Starting SERVER...");
 			var peer = new ENetMultiplayerPeer();
-			var err = peer.CreateServer(GameState.Port, maxClients: 4);
+			var err = peer.CreateServer(GameState.Port, maxClients: 10);
 			if (err != Error.Ok) { GD.PrintErr("Failed to start server: " + err); return; }
 
 			Multiplayer.MultiplayerPeer = peer;
@@ -182,8 +182,6 @@ namespace main
 			GameState.GameActive = false;
 			Rpc(nameof(ReceiveReturnToPool));
 		}
-
-		
 
 		public void PlayerQuit()
 		{
